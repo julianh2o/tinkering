@@ -16,7 +16,6 @@ const int PW_period = 230;
 void delay(int n);
 void HSVtoRGB(char *r, char *g, char *b, short h);
 
-void setHue(short h);
 void setColor(int r, int g, int b);
 void led_update();
 
@@ -29,35 +28,27 @@ void main(void) {
 
     //set up timer
     T0IF = 0;
-    TMR0 = PW_period;
+    TMR0 = PW_period; //interrupt at 0.1ms (no prescaler)
     T0CS = 0;
     PSA = 1;
-    GIE = 1; //global interrupt flag
+    //OPTION_REG |= 0x070;
+    GIE = 1; //off
     T0IE = 1;
 
-    TRISB3 = 1; //button
+    RB0 = 0;
+    RB1 = 0;
+    RB2 = 0;
 
-    short i = EEPROM_READ(0x0A);
-    while (1) {
-        if (i >= 360/60) i=0;
-
-        EEPROM_WRITE(0x0A, i);
-
-        setHue(60*i);
-
-        //delay(1000);
-        while(RB3 == 1); //debounce
-        while(RB3 == 0);
-        setColor(100,100,100);
-        delay(1000);
-        i++;
+    
+    short hue = 0;
+    while(1) {
+        if (hue >= 360) hue = 0;
+        char r,g,b;
+        HSVtoRGB(&r,&g,&b,hue);
+        setColor(r,g,b);
+        delay(500);
+        hue += 1;
     }
-}
-
-void setHue(short h) {
-    char r,g,b;
-    HSVtoRGB(&r,&g,&b,h);
-    setColor(r,g,b);
 }
 
 void HSVtoRGB(char *r, char *g, char *b, short h) {

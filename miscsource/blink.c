@@ -1,7 +1,6 @@
 #include <htc.h>
 #include <pic16f628a.h>
 
-
 __CONFIG(0x3FF0);
 
 void delay(void);
