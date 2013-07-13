@@ -223,8 +223,9 @@ void initTX(void)
  */
 void waitForDevice(void)
 {
-    unsigned short i;
-    for (i=0; i<30; i++) {
+    char i;
+    for (i=0; i<30; i++)
+	{
         Nop();
     }
 }
