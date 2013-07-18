@@ -1,0 +1,8 @@
+PIC FAQ
+http://www.voti.nl/picfaq/index_1.html
+
+USB Oscilliscope - open source
+http://gitorious.org/osqoop/pages/Home
+
+SPARKFUN - Windows Only Oscilliscope
+https://www.sparkfun.com/products/9263
