@@ -2,3 +2,6 @@ http://www.digikey.com/scripts/dksearch/dksus.dll?vendor=0&keywords=PIC12F1501
 
 
 http://www.microchip.com/maps/microcontroller.aspx
+
+LED-strip example code
+http://www.insomnialighting.com/code/ws2811.c

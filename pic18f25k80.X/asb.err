@@ -1,0 +1,3 @@
+Warning[2056] asb.c 178 : expression is always true
+Warning[2066] asb.c 245 : type qualifier mismatch in assignment
+Warning[2066] asb.c 309 : type qualifier mismatch in assignment
