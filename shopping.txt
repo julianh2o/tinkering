@@ -1,0 +1,20 @@
+DIGIKEY
+faster pic
+right angle headers 
+infrared photoresistor (http://www.digikey.com/product-detail/en/SFH314/475-1081-ND/607290)
+DC barrel adaptor (https://www.sparkfun.com/products/10811) (http://www.digikey.com/product-detail/en/PJ-102A/CP-102A-ND/275425)
+
+DIGIKEY - RESISTORS
+230 Ohm
+
+DIGIKEY - CAPACITORS
+1uF ceramic
+
+SPARKFUN
+5v power supply (https://www.sparkfun.com/products/8269)
+LCD display (https://www.sparkfun.com/products/9395)
+
+AMAZON
+organizers (http://www.amazon.com/Plano-23600-01-Stowaway-Adjustable-Dividers/dp/B000E39T50/ref=sr_1_2?ie=UTF8&qid=1374033477&sr=8-2&keywords=bead+box)
+breadboard (http://www.amazon.com/BB830-Solderless-Plug--BreadBoard-tie-points/dp/B0040Z4QN8/ref=sr_1_1?ie=UTF8&qid=1374036842&sr=8-1&keywords=breadboards)
+
