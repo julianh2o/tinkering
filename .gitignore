@@ -2,3 +2,4 @@ build/
 dist/
 funclist
 .DS_Store
+*.err

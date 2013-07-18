@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=asb.c nRF2401.c
+SOURCEFILES_QUOTED_IF_SPACED=ledmain.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/asb.o ${OBJECTDIR}/nRF2401.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/asb.o.d ${OBJECTDIR}/nRF2401.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ledmain.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ledmain.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/asb.o ${OBJECTDIR}/nRF2401.o
+OBJECTFILES=${OBJECTDIR}/ledmain.o
 
 # Source Files
-SOURCEFILES=asb.c nRF2401.c
+SOURCEFILES=ledmain.c
 
 
 CFLAGS=
@@ -86,34 +86,20 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/asb.o: asb.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/ledmain.o: ledmain.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/asb.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION)   -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/asb.o   asb.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/asb.o 
-	@${FIXDEPS} "${OBJECTDIR}/asb.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
-	
-${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/nRF2401.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION)   -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/nRF2401.o   nRF2401.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
-	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	@${RM} ${OBJECTDIR}/ledmain.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION)   -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmain.o   ledmain.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/ledmain.o 
+	@${FIXDEPS} "${OBJECTDIR}/ledmain.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 else
-${OBJECTDIR}/asb.o: asb.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/ledmain.o: ledmain.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/asb.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION)   -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/asb.o   asb.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/asb.o 
-	@${FIXDEPS} "${OBJECTDIR}/asb.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
-	
-${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/nRF2401.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION)   -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/nRF2401.o   nRF2401.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
-	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	@${RM} ${OBJECTDIR}/ledmain.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION)   -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmain.o   ledmain.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/ledmain.o 
+	@${FIXDEPS} "${OBJECTDIR}/ledmain.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 endif
 
