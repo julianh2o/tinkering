@@ -4,5 +4,17 @@ http://www.voti.nl/picfaq/index_1.html
 USB Oscilliscope - open source
 http://gitorious.org/osqoop/pages/Home
 
+mac compatible USB oscilloscopes
+http://www.rau-deaver.org/Mac-Instruments.html
+
 SPARKFUN - Windows Only Oscilliscope
 https://www.sparkfun.com/products/9263
+
+WS2811 datasheet
+http://www.adafruit.com/datasheets/WS2811.pdf
+
+ASM instruction set reference (slides)
+http://www.cs.wvu.edu/classes/cpe112/presentations/PDF/PIC_Part3_AssemblyLanguage.pdf
+
+ASM program flow instructions
+http://www.pcbheaven.com/picpages/Program_Flow_Instructions/
