@@ -14,98 +14,90 @@ void one(void);
 void zero(void);
 void Delay1TCYx(char n);
 
+//#define oneD() STRIP_DATA = SET; Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); STRIP_DATA = CLEAR; Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop();
+//#define zeroD() STRIP_DATA = SET; Nop();Nop();Nop();Nop();Nop();Nop();Nop(); STRIP_DATA = CLEAR; Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+#define oneD() STRIP_DATA = SET; Nop();Nop();Nop();Nop(); STRIP_DATA = CLEAR; Nop();Nop();Nop();Nop();
+#define zeroD() STRIP_DATA = SET; Nop();Nop(); STRIP_DATA = CLEAR; Nop();Nop();Nop();Nop();Nop();Nop();
+
+int adjust = 0;
 void main(void) {
     int i;
     STRIP_DATA_TRIS = OUTPUT;
+    OSCCONbits.IRCF = 0b111; //sets internal osc to 16Mhz
+    OSCCONbits.SCS = 0b11;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
+    OSCTUNEbits.PLLEN = 0b0;
+
+    
+    
 
     while(1) {
-        reset();
+        _asm
+            CALL asm_reset,1
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+            CALL asm_one,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_zero,1 //2
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+            CALL asm_one,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+            CALL asm_one,1 //2
+            CALL asm_zero,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
+            CALL asm_one,1 //2
 
-        /////////////////////////////
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+            GOTO skip
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+        asm_reset:
+            BCF PORTB, 0, ACCESS //1
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+            MOVLW 66 //1
+        loop:
+            ADDLW -1 //1
+            BNZ loop //1 if false, 2 if true
 
-        /////////////////////////////
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+            RETURN 1 //2
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
+        asm_zero:
+            BSF PORTB, 0, ACCESS //1
+            NOP
+            BCF PORTB, 0, ACCESS //1
+            NOP
+            NOP
+            NOP                        
+            RETURN 1 //2
 
-        one();
-        zero();
-        zero();
-        one();
-        one();
-        one();
-        one();
-        one();
-    }
+        asm_one:
+            BSF PORTB, 0, ACCESS //1
+            NOP
+            NOP
+            NOP
+            NOP
+            BCF PORTB, 0, ACCESS //1
+            RETURN 1 //2
 
-    while(1) {
+        skip:
+
+        _endasm
+
+        STRIP_DATA = SET;
+        delay();
+        STRIP_DATA = CLEAR;
         delay();
     }
 }
@@ -122,7 +114,7 @@ void Delay1TCYx(char n) {
 
 void reset(void) {
     STRIP_DATA = CLEAR;
-    Delay100TCYx(32);
+    Delay100TCYx(2);
 }
 
 void highFor(char cycles) {
