@@ -11,7 +11,7 @@
 
 // CONFIG1H
 #pragma config FOSC = INTIO2    // Oscillator (Internal RC oscillator)
-#pragma config PLLCFG = OFF     // PLL x4 Enable bit (Disabled)
+#pragma config PLLCFG = ON      // PLL x4 Enable bit
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor (Disabled)
 #pragma config IESO = OFF       // Internal External Oscillator Switch Over Mode (Disabled)
 

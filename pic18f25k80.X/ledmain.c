@@ -14,59 +14,119 @@ void one(void);
 void zero(void);
 void Delay1TCYx(char n);
 
-//#define oneD() STRIP_DATA = SET; Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); STRIP_DATA = CLEAR; Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop(); Nop();
-//#define zeroD() STRIP_DATA = SET; Nop();Nop();Nop();Nop();Nop();Nop();Nop(); STRIP_DATA = CLEAR; Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
-#define oneD() STRIP_DATA = SET; Nop();Nop();Nop();Nop(); STRIP_DATA = CLEAR; Nop();Nop();Nop();Nop();
-#define zeroD() STRIP_DATA = SET; Nop();Nop(); STRIP_DATA = CLEAR; Nop();Nop();Nop();Nop();Nop();Nop();
+char led_buffer[6] = {150,255,255,0,255,255};
 
 int adjust = 0;
 void main(void) {
     int i;
+    int a;
     STRIP_DATA_TRIS = OUTPUT;
-    OSCCONbits.IRCF = 0b111; //sets internal osc to 16Mhz
-    OSCCONbits.SCS = 0b11;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
-    OSCTUNEbits.PLLEN = 0b0;
 
+    //setup 16mhz
+    //OSCCONbits.IRCF = 0b111; //sets internal osc to 16Mhz
+    //OSCCONbits.SCS = 0b11;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
+    //OSCTUNEbits.PLLEN = 0b0;
+
+    //setup 32mhz
+    OSCCONbits.IRCF = 0b110; //sets internal osc to 16Mhz
+    OSCCONbits.SCS = 0b00;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
+    OSCTUNEbits.PLLEN = 0b1;
     
     
+    //while(1) {
 
-    while(1) {
+//        i = led_buffer[0];
+//        a = 5;
+//        a = a+i;
+//        i = a;
+        //i++;
         _asm
+            //presetup
+    
+            CALL asm_reset,1
+            GOTO skipClear
+
+            
+            //CLEAR BITS
+            MOVLW 240 //1
+        loop:
+            BSF PORTB, 0, ACCESS //1
+            NOP
+            BCF PORTB, 0, ACCESS //1
+            NOP
+            NOP
+            NOP
+            NOP
+            NOP
+            NOP
+
+            ADDLW -1 //1
+            BNZ loop //1 if false, 2 if true
+
             CALL asm_reset,1
 
-            CALL asm_one,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_zero,1 //2
+            GOTO done
 
-            CALL asm_one,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
+        skipClear:
 
-            CALL asm_one,1 //2
-            CALL asm_zero,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
-            CALL asm_one,1 //2
+            
+
+
+
+
+            //setup
+            MOVLW 0
+            MOVWF PLUSW2, ACCESS //1
+
+            //loop counter
+            MOVLW 24 //1
+
+            
+
+            //move led_buffer to W
+            //MOVF led_buffer, 0, ACCESS //1
+            
+            //one: high 5, low 5
+            //zero: high 2, low 8
+        fill_loop:
+            RLCF PLUSW2, 1, 0 //1
+            //DECF PLUSW2, 1, 0 //1
+            //BZ done //1 or 2
+
+
+
+            //start
+            BSF PORTB, 0, ACCESS //1
+            BC skipToOne //1 or 2
+            BCF PORTB, 0, ACCESS //1
+            NOP
+            NOP
+            NOP
+            ADDLW -1 //1
+            BNZ fill_loop //1 if false, 2 if true
+            GOTO done //2
+
+        skipToOne:
+            ADDLW -1 //1
+            NOP
+            BCF PORTB, 0, ACCESS //1
+            NOP
+            BNZ fill_loop //1 if false, 2 if true
+            GOTO done //2
+
+        done:
+
+            CALL asm_reset,1
 
             GOTO skip
+
+        asm_send:
+
 
         asm_reset:
             BCF PORTB, 0, ACCESS //1
 
-            MOVLW 66 //1
+            MOVLW 135 //1
         loop:
             ADDLW -1 //1
             BNZ loop //1 if false, 2 if true
@@ -94,13 +154,45 @@ void main(void) {
         skip:
 
         _endasm
-
-        STRIP_DATA = SET;
-        delay();
-        STRIP_DATA = CLEAR;
-        delay();
-    }
+//
+//        STRIP_DATA = SET;
+//        delay();
+//        STRIP_DATA = CLEAR;
+//        delay();
+    //}
 }
+
+
+
+
+//            CALL asm_reset,1
+//
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//            CALL asm_one,1 //2
+//
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
+//            CALL asm_zero,1 //2
 
 void delay(void) {
     Delay10KTCYx(254);

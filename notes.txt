@@ -18,3 +18,5 @@ http://www.cs.wvu.edu/classes/cpe112/presentations/PDF/PIC_Part3_AssemblyLanguag
 
 ASM program flow instructions
 http://www.pcbheaven.com/picpages/Program_Flow_Instructions/
+
+LFSR - load file select register
