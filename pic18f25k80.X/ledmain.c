@@ -17,7 +17,7 @@ void one(void);
 void zero(void);
 void Delay1TCYx(char n);
 
-char led_buffer[6] = {10,255,255,0,255,255};
+char led_buffer[6] = {10,155,255,0,255,255};
 
 int adjust = 0;
 void main(void) {
@@ -43,20 +43,24 @@ void main(void) {
             CALL asm_reset,1
 
             //loop counter
-            MOVLW 8 //1
-            MOVWF RXB1D6, ACCESS //1
+            MOVLW 3 //1
+            MOVWF RXB1D5, ACCESS //1
+
+            LFSR 0,led_buffer //1
             
             //one: high 5, low 5
             //zero: high 2, low 8
-        load_new_data:
-            LFSR 0,led_buffer //1
+        loadNewData:
             MOVF INDF0, 0, ACCESS //1
             MOVWF RXB1D7, ACCESS //1
-        fill_loop:
-            //BCF STATUS, 0, ACCESS //1
+
+        dataLoadedSendBits:
+            MOVLW 7 //1
+            MOVWF RXB1D6, ACCESS //1
+
+        sendBitsLoop:
+        //## SEND BIT##
             RLCF RXB1D7, 1, 0 //1
-        
-            //start
             BSF PORTB, 0, ACCESS //1
             BC carryBitSet //1 or 2
         carryBitClear:
@@ -67,7 +71,7 @@ void main(void) {
             NOP
             NOP //extra nop
             DECF RXB1D6, 1, ACCESS //1
-            BNZ fill_loop //1 if false, 2 if true
+            BNZ sendBitsLoop //1 if false, 2 if true
             GOTO done //2
 
         carryBitSet:
@@ -77,25 +81,41 @@ void main(void) {
             NOP
             NOP //extra nop
             BCF PORTB, 0, ACCESS //1
-            BNZ fill_loop //1 if false, 2 if true
+            BNZ sendBitsLoop //1 if false, 2 if true
             GOTO done //2
 
         done:
 
-            MOVLW 16
-        sendRemainingBits:
+            //## SEND BIT##
+            RLCF RXB1D7, 1, 0 //1
             BSF PORTB, 0, ACCESS //1
-            NOP
+            BC carryBitSetFinal //1 or 2
+        carryBitClearFinal:
+            //Transmit a zero (high 2, low 8)
             BCF PORTB, 0, ACCESS //1
-            NOP
-            NOP
-            NOP
-            NOP
-            NOP
-            ADDLW -1 //1
-            BNZ sendRemainingBits //1 if false, 2 if true
+            BZ doneFinal
+            INCF FSR0, 0, ACCESS
+            DECFSZ RXB1D5, 1, ACCESS
+            GOTO loadNewData //2
+            GOTO doneFinal
 
-            CALL asm_reset,1
+        carryBitSetFinal:
+            //Transmit a one (high 5, low 5)
+            MOVF INDF0, 0, ACCESS //1
+            MOVWF RXB1D7, ACCESS //1
+            MOVLW 7 //1
+            BCF PORTB, 0, ACCESS //1
+            MOVWF RXB1D6, ACCESS //1
+            INCF FSR0, 0, ACCESS
+            DECFSZ RXB1D5, 1, ACCESS
+            GOTO sendBitsLoop //2
+            GOTO doneFinal
+
+        doneFinal:
+
+
+
+
 
             
 
