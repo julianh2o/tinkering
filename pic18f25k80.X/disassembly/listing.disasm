@@ -1,7 +1,7 @@
 Disassembly Listing for pic18f25k80
 Generated From:
 /Users/julian/Documents/Programming/tinkering/pic18f25k80.X/dist/default/production/pic18f25k80.X.production.cof
-Jul 20, 2013 6:11:45 PM
+Jul 21, 2013 4:37:02 AM
 
 ---  /Users/julian/Documents/Programming/tinkering/pic18f25k80.X/ledmain.c  -----------------------------
 1:             #include "config.h"
@@ -16,565 +16,418 @@ Jul 20, 2013 6:11:45 PM
 10:            #define STATUS_LED PORTBbits.RB1
 11:            
 12:            void delay(void);
-13:            void wait(void);
-14:            void highFor(char cycles);
-15:            void reset(void);
-16:            void one(void);
-17:            void zero(void);
-18:            void Delay1TCYx(char n);
+13:            
+14:            void setLEDs();
+15:            void sendBatch(char * ptr, char len);
+16:            void sendReset();
+17:            
+18:            #define DATA_SIZE_1 255
 19:            
-20:            char led_buffer[6] = {10,155,255,0,255,255};
-21:            
-22:            int adjust = 0;
-23:            void main(void) {
-0014  CFD9     MOVFF FSR2L, POSTINC1
-0016  FFE6     NOP
-0018  CFE1     MOVFF FSR1L, FSR2L
-001A  FFD9     NOP
-001C  0E04     MOVLW 0x4
-001E  26E1     ADDWF FSR1L, F, ACCESS
-24:                int i = 0;
-0020  6ADE     CLRF POSTINC2, ACCESS
-0022  6ADD     CLRF POSTDEC2, ACCESS
-25:                int a;
-26:                STRIP_DATA_TRIS = OUTPUT;
-0024  9093     BCF TRISB, 0, ACCESS
-27:                STATUS_TRIS = OUTPUT;
-0026  9293     BCF TRISB, 1, ACCESS
-28:                PORTBbits.RB2 = OUTPUT;
-0028  9481     BCF PORTB, 2, ACCESS
-29:            
-30:                //setup 16mhz
-31:                //OSCCONbits.IRCF = 0b111; //sets internal osc to 16Mhz
-32:                //OSCCONbits.SCS = 0b11;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
-33:                //OSCTUNEbits.PLLEN = 0b0;
-34:            
-35:                //setup 32mhz
-36:                OSCCONbits.IRCF = 0b110; //sets internal osc to 16Mhz
-002A  0E8F     MOVLW 0x8F
-002C  14D3     ANDWF OSCCON, W, ACCESS
-002E  0960     IORLW 0x60
-0030  6ED3     MOVWF OSCCON, ACCESS
-37:                OSCCONbits.SCS = 0b00;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
-0032  0EFC     MOVLW 0xFC
-0034  14D3     ANDWF OSCCON, W, ACCESS
-0036  0900     IORLW 0x0
-0038  6ED3     MOVWF OSCCON, ACCESS
-38:                OSCTUNEbits.PLLEN = 0b1;
-003A  8C9B     BSF OSCTUNE, 6, ACCESS
-39:            
-40:                INTCON2bits.RBPU = 0b0;
-003C  9EF1     BCF INTCON2, 7, ACCESS
-41:            
-42:                    _asm
-43:                        CALL asm_reset,1
-003E  ED55     CALL 0xAA, 1
-0040  F000     NOP
-44:            
-45:                        //loop counter
-46:                        MOVLW 3 //1
-0042  0E03     MOVLW 0x3
-47:                        MOVWF RXB1D5, ACCESS //1
-0044  6E3B     MOVWF 0x3B, ACCESS
+20:            //RAINBOW
+21:            //const char led_buffer[DATA_SIZE_1] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15};
+22:            const char led_buffer[DATA_SIZE_1+1] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0};
+23:            
+24:            //BLUE EVERY 10
+25:            //const char led_buffer[DATA_SIZE_1] = {0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0};
+26:            
+27:            
+28:            
+29:            void main(void) {
+30:                STRIP_DATA_TRIS = OUTPUT;
+0014  9093     BCF TRISB, 0, ACCESS
+31:                STATUS_TRIS = OUTPUT;
+0016  9293     BCF TRISB, 1, ACCESS
+32:                PORTBbits.RB2 = OUTPUT;
+0018  9481     BCF PORTB, 2, ACCESS
+33:            
+34:                //setup 16mhz
+35:                //OSCCONbits.IRCF = 0b111; //sets internal osc to 16Mhz
+36:                //OSCCONbits.SCS = 0b11;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
+37:                //OSCTUNEbits.PLLEN = 0b0;
+38:            
+39:                //setup 32mhz
+40:                OSCCONbits.IRCF = 0b110; //sets internal osc to 16Mhz
+001A  0E8F     MOVLW 0x8F
+001C  14D3     ANDWF OSCCON, W, ACCESS
+001E  0960     IORLW 0x60
+0020  6ED3     MOVWF OSCCON, ACCESS
+41:                OSCCONbits.SCS = 0b00;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
+0022  0EFC     MOVLW 0xFC
+0024  14D3     ANDWF OSCCON, W, ACCESS
+0026  0900     IORLW 0x0
+0028  6ED3     MOVWF OSCCON, ACCESS
+42:                OSCTUNEbits.PLLEN = 0b1;
+002A  8C9B     BSF OSCTUNE, 6, ACCESS
+43:            
+44:                INTCON2bits.RBPU = 0b0;
+002C  9EF1     BCF INTCON2, 7, ACCESS
+45:            
+46:                setLEDs();
+002E  EF19     GOTO 0x32
+0030  F000     NOP
+47:            }
 48:            
-49:                        LFSR 0,led_buffer //1
-0046  EE0E     LFSR 0, 0xE0A
-0048  F00A     NOP
-50:                        
-51:                        //one: high 5, low 5
-52:                        //zero: high 2, low 8
-53:                    loadNewData:
-54:                        MOVF INDF0, 0, ACCESS //1
-004A  50EF     MOVF INDF0, W, ACCESS
-55:                        MOVWF RXB1D7, ACCESS //1
-004C  6E3D     MOVWF 0x3D, ACCESS
-56:            
-57:                    dataLoadedSendBits:
-58:                        MOVLW 7 //1
-004E  0E07     MOVLW 0x7
-59:                        MOVWF RXB1D6, ACCESS //1
-0050  6E3C     MOVWF 0x3C, ACCESS
-60:            
-61:                    sendBitsLoop:
-62:                    //## SEND BIT##
-63:                        RLCF RXB1D7, 1, 0 //1
-0052  363D     RLCF 0x3D, F, ACCESS
-64:                        BSF PORTB, 0, ACCESS //1
-0054  8081     BSF PORTB, 0, ACCESS
-65:                        BC carryBitSet //1 or 2
-0056  E209     BC 0x6A
-66:                    carryBitClear:
-67:                        //Transmit a zero (high 2, low 8)
-68:                        BCF PORTB, 0, ACCESS //1
-0058  9081     BCF PORTB, 0, ACCESS
-69:                        NOP
-005A  0000     NOP
-70:                        NOP
-005C  0000     NOP
-71:                        NOP
-005E  0000     NOP
-72:                        NOP //extra nop
-0060  0000     NOP
-73:                        DECF RXB1D6, 1, ACCESS //1
-0062  063C     DECF 0x3C, F, ACCESS
-74:                        BNZ sendBitsLoop //1 if false, 2 if true
-0064  E1F6     BNZ 0x52
-75:                        GOTO done //2
-0066  EF3D     GOTO 0x7A
-0068  F000     NOP
+49:            void setLEDs() {
+50:                sendReset();
+0032  D80B     RCALL sendReset
+51:                sendBatch(&led_buffer,DATA_SIZE_1);
+0034  68E6     SETF POSTINC1, ACCESS
+0036  0E00     MOVLW 0x0
+0038  6EE6     MOVWF POSTINC1, ACCESS
+003A  0E01     MOVLW 0x1
+003C  6EE6     MOVWF POSTINC1, ACCESS
+003E  D80A     RCALL sendBatch
+0040  52E5     MOVF POSTDEC1, F, ACCESS
+0042  52E5     MOVF POSTDEC1, F, ACCESS
+0044  52E5     MOVF POSTDEC1, F, ACCESS
+52:                //sendBatch(&led_buffer2,DATA_SIZE_2);
+53:                sendReset();
+0046  EF25     GOTO 0x4A
+0048  F000     NOP
+54:            }
+55:            
+56:            void sendReset() {
+57:                _asm
+58:                    //################### ASM RESET ##############
+59:                    // sents a reset to the LED strip
+60:                    asm_reset:
+61:                        BCF PORTB, 0, ACCESS //1
+004A  9081     BCF PORTB, 0, ACCESS
+62:            
+63:                        MOVLW 135 //1
+004C  0E87     MOVLW 0x87
+64:                    loop:
+65:                        ADDLW -1 //1
+004E  0FFF     ADDLW 0xFF
+66:                        BNZ loop //1 if false, 2 if true
+0050  E1FE     BNZ 0x4E
+67:            
+68:                _endasm
+69:            }
+0052  0012     RETURN 0
+70:            
+71:            void sendBatch(char * ptr, char len) {
+0054  CFD9     MOVFF FSR2L, POSTINC1
+0056  FFE6     NOP
+0058  CFE1     MOVFF FSR1L, FSR2L
+005A  FFD9     NOP
+72:                    _asm
+73:            
+74:                    asm_reset:
+75:                        BCF PORTB, 0, ACCESS //1
+005C  9081     BCF PORTB, 0, ACCESS
 76:            
-77:                    carryBitSet:
-78:                        //Transmit a one (high 5, low 5)
-79:                        DECF RXB1D6, 1, ACCESS //1
-006A  063C     DECF 0x3C, F, ACCESS
-80:                        NOP
-006C  0000     NOP
-81:                        NOP
-006E  0000     NOP
-82:                        NOP //extra nop
-0070  0000     NOP
-83:                        BCF PORTB, 0, ACCESS //1
-0072  9081     BCF PORTB, 0, ACCESS
-84:                        BNZ sendBitsLoop //1 if false, 2 if true
-0074  E1EE     BNZ 0x52
-85:                        GOTO done //2
-0076  EF3D     GOTO 0x7A
-0078  F000     NOP
-86:            
-87:                    done:
+77:                        MOVLW 135 //1
+005E  0E87     MOVLW 0x87
+78:                    loop:
+79:                        ADDLW -1 //1
+0060  0FFF     ADDLW 0xFF
+80:                        BNZ loop //1 if false, 2 if true
+0062  E1FE     BNZ 0x60
+81:            
+82:            
+83:            
+84:                        //loop over elements
+85:            //            MOVLW  //1
+86:            //            MOVWF RXB1D4, ACCESS //1
+87:                        LFSR 0,led_buffer //1
+0064  EE01     LFSR 0, 0x100
+0066  F000     NOP
 88:            
-89:                        //## SEND BIT##
-90:                        RLCF RXB1D7, 1, 0 //1
-007A  363D     RLCF 0x3D, F, ACCESS
-91:                        BSF PORTB, 0, ACCESS //1
-007C  8081     BSF PORTB, 0, ACCESS
-92:                        BC carryBitSetFinal //1 or 2
-007E  E208     BC 0x90
-93:                    carryBitClearFinal:
-94:                        //Transmit a zero (high 2, low 8)
-95:                        BCF PORTB, 0, ACCESS //1
-0080  9081     BCF PORTB, 0, ACCESS
-96:                        BZ doneFinal
-0082  E011     BZ 0xA6
-97:                        INCF FSR0, 0, ACCESS
-0084  28E9     INCF FSR0L, W, ACCESS
-98:                        DECFSZ RXB1D5, 1, ACCESS
-0086  2E3B     DECFSZ 0x3B, F, ACCESS
-99:                        GOTO loadNewData //2
-0088  EF25     GOTO 0x4A
+89:                    nextLED:
+90:                        //loop over colors
+91:                        MOVLW 255 //1
+0068  0EFF     MOVLW 0xFF
+92:                        MOVWF RXB1D5, ACCESS //1
+006A  6E3B     MOVWF 0x3B, ACCESS
+93:                        
+94:                        //one: high 5, low 5
+95:                        //zero: high 2, low 8
+96:                    loadNewData:
+97:                        MOVF INDF0, 0, ACCESS //1
+006C  50EF     MOVF INDF0, W, ACCESS
+98:                        MOVWF RXB1D7, ACCESS //1
+006E  6E3D     MOVWF 0x3D, ACCESS
+99:            
+100:                   dataLoadedSendBits:
+101:                       MOVLW 7 //1
+0070  0E07     MOVLW 0x7
+102:                       MOVWF RXB1D6, ACCESS //1
+0072  6E3C     MOVWF 0x3C, ACCESS
+103:           
+104:                   sendBitsLoop:
+105:                   //## SEND BIT##
+106:                       RLCF RXB1D7, 1, 0 //1
+0074  363D     RLCF 0x3D, F, ACCESS
+107:                       BSF PORTB, 0, ACCESS //1
+0076  8081     BSF PORTB, 0, ACCESS
+108:                       BC carryBitSet //1 or 2
+0078  E209     BC 0x8C
+109:                   carryBitClear:
+110:                       //Transmit a zero (high 2, low 8)
+111:                       BCF PORTB, 0, ACCESS //1
+007A  9081     BCF PORTB, 0, ACCESS
+112:                       NOP
+007C  0000     NOP
+113:                       NOP
+007E  0000     NOP
+114:                       NOP
+0080  0000     NOP
+115:                       NOP //extra nop
+0082  0000     NOP
+116:                       DECF RXB1D6, 1, ACCESS //1
+0084  063C     DECF 0x3C, F, ACCESS
+117:                       BNZ sendBitsLoop //1 if false, 2 if true
+0086  E1F6     BNZ 0x74
+118:                       GOTO done //2
+0088  EF4E     GOTO 0x9C
 008A  F000     NOP
-100:                       GOTO doneFinal
-008C  EF53     GOTO 0xA6
-008E  F000     NOP
-101:           
-102:                   carryBitSetFinal:
-103:                       //Transmit a one (high 5, low 5)
-104:                       MOVF INDF0, 0, ACCESS //1
-0090  50EF     MOVF INDF0, W, ACCESS
-105:                       MOVWF RXB1D7, ACCESS //1
-0092  6E3D     MOVWF 0x3D, ACCESS
-106:                       MOVLW 7 //1
-0094  0E07     MOVLW 0x7
-107:                       BCF PORTB, 0, ACCESS //1
-0096  9081     BCF PORTB, 0, ACCESS
-108:                       MOVWF RXB1D6, ACCESS //1
-0098  6E3C     MOVWF 0x3C, ACCESS
-109:                       INCF FSR0, 0, ACCESS
-009A  28E9     INCF FSR0L, W, ACCESS
-110:                       DECFSZ RXB1D5, 1, ACCESS
-009C  2E3B     DECFSZ 0x3B, F, ACCESS
-111:                       GOTO sendBitsLoop //2
-009E  EF29     GOTO 0x52
-00A0  F000     NOP
-112:                       GOTO doneFinal
-00A2  EF53     GOTO 0xA6
-00A4  F000     NOP
-113:           
-114:                   doneFinal:
-115:           
-116:           
-117:           
-118:           
 119:           
-120:                       
-121:           
-122:           
-123:                   
-124:                   GOTO skipSubroutines
-00A6  EF6A     GOTO 0xD4
-00A8  F000     NOP
-125:                   //################### ASM RESET ##############
-126:                   // sents a reset to the LED strip
-127:                   asm_reset:
-128:                       BCF PORTB, 0, ACCESS //1
-00AA  9081     BCF PORTB, 0, ACCESS
+120:                   carryBitSet:
+121:                       //Transmit a one (high 5, low 5)
+122:                       DECF RXB1D6, 1, ACCESS //1
+008C  063C     DECF 0x3C, F, ACCESS
+123:                       NOP
+008E  0000     NOP
+124:                       NOP
+0090  0000     NOP
+125:                       NOP //extra nop
+0092  0000     NOP
+126:                       BCF PORTB, 0, ACCESS //1
+0094  9081     BCF PORTB, 0, ACCESS
+127:                       BNZ sendBitsLoop //1 if false, 2 if true
+0096  E1EE     BNZ 0x74
+128:                       GOTO done //2
+0098  EF4E     GOTO 0x9C
+009A  F000     NOP
 129:           
-130:                       MOVLW 135 //1
-00AC  0E87     MOVLW 0x87
-131:                   loop:
-132:                       ADDLW -1 //1
-00AE  0FFF     ADDLW 0xFF
-133:                       BNZ loop //1 if false, 2 if true
-00B0  E1FE     BNZ 0xAE
-134:           
-135:                       RETURN 1 //2
-00B2  0013     RETURN 1
-136:           
-137:           
-138:                   // ############### CLEAR 10 ################
-139:                   // clears the first 10 LEDs to off
-140:                   clear10:
-141:                       CALL asm_reset,1
-00B4  ED55     CALL 0xAA, 1
-00B6  F000     NOP
-142:           
-143:                       //CLEAR BITS
-144:                       MOVLW 240 //1
-00B8  0EF0     MOVLW 0xF0
-145:                   loop:
-146:                       BSF PORTB, 0, ACCESS //1
-00BA  8081     BSF PORTB, 0, ACCESS
-147:                       NOP
-00BC  0000     NOP
-148:                       BCF PORTB, 0, ACCESS //1
-00BE  9081     BCF PORTB, 0, ACCESS
-149:                       NOP
-00C0  0000     NOP
-150:                       NOP
-00C2  0000     NOP
-151:                       NOP
-00C4  0000     NOP
-152:                       NOP
-00C6  0000     NOP
-153:                       NOP
-00C8  0000     NOP
-154:                       NOP
-00CA  0000     NOP
-155:           
-156:                       ADDLW -1 //1
-00CC  0FFF     ADDLW 0xFF
-157:                       BNZ loop //1 if false, 2 if true
-00CE  E1F5     BNZ 0xBA
-158:           
-159:                       CALL asm_reset,1
-00D0  EF55     GOTO 0xAA
-00D2  F000     NOP
+130:                   done:
+131:           
+132:                       //## SEND BIT##
+133:                       RLCF RXB1D7, 1, 0 //1
+009C  363D     RLCF 0x3D, F, ACCESS
+134:                       BSF PORTB, 0, ACCESS //1
+009E  8081     BSF PORTB, 0, ACCESS
+135:                       BC carryBitSetFinal //1 or 2
+00A0  E208     BC 0xB2
+136:                   carryBitClearFinal:
+137:                       //Transmit a zero (high 2, low 8)
+138:                       BCF PORTB, 0, ACCESS //1
+00A2  9081     BCF PORTB, 0, ACCESS
+139:                       BZ doneFinal
+00A4  E011     BZ 0xC8
+140:                       INCF FSR0, 1, ACCESS
+00A6  2AE9     INCF FSR0L, F, ACCESS
+141:                       DECFSZ RXB1D5, 1, ACCESS
+00A8  2E3B     DECFSZ 0x3B, F, ACCESS
+142:                       GOTO loadNewData //2
+00AA  EF36     GOTO 0x6C
+00AC  F000     NOP
+143:           //            DECFSZ RXB1D4, 1, ACCESS
+144:           //            GOTO nextLED
+145:                       GOTO doneFinal
+00AE  EF64     GOTO 0xC8
+00B0  F000     NOP
+146:           
+147:                   carryBitSetFinal:
+148:                       //Transmit a one (high 5, low 5)
+149:                       //increment memory address
+150:                       INCF FSR0, 1, ACCESS
+00B2  2AE9     INCF FSR0L, F, ACCESS
+151:                       //Load next memory location into a register
+152:                       MOVF INDF0, 0, ACCESS //1
+00B4  50EF     MOVF INDF0, W, ACCESS
+153:                       MOVWF RXB1D7, ACCESS //1
+00B6  6E3D     MOVWF 0x3D, ACCESS
+154:           
+155:                       //OUTPUT LOW
+156:                       BCF PORTB, 0, ACCESS //1
+00B8  9081     BCF PORTB, 0, ACCESS
+157:                       //restart counter at 7
+158:                       MOVLW 7 //1
+00BA  0E07     MOVLW 0x7
+159:                       MOVWF RXB1D6, ACCESS //1
+00BC  6E3C     MOVWF 0x3C, ACCESS
 160:           
-161:                       RETURN 1
-162:           
-163:           
-164:           
-165:                   skipSubroutines:
+161:                       DECFSZ RXB1D5, 1, ACCESS
+00BE  2E3B     DECFSZ 0x3B, F, ACCESS
+162:                       GOTO sendBitsLoop //2
+00C0  EF3A     GOTO 0x74
+00C2  F000     NOP
+163:           //            DECFSZ RXB1D4, 1, ACCESS
+164:           //            GOTO nextLED
+165:                       GOTO doneFinal
+00C4  EF64     GOTO 0xC8
+00C6  F000     NOP
 166:           
-167:                   _endasm
-168:           //
-169:           //        STRIP_DATA = SET;
-170:           //        delay();
-171:           //        STRIP_DATA = CLEAR;
-172:           //        delay();
-173:               //}
-174:           }
-00D4  0E04     MOVLW 0x4
-00D6  5CE1     SUBWF FSR1L, W, ACCESS
-00D8  E202     BC 0xDE
-00DA  6AE1     CLRF FSR1L, ACCESS
-00DC  52E5     MOVF POSTDEC1, F, ACCESS
-00DE  6EE1     MOVWF FSR1L, ACCESS
-00E0  52E5     MOVF POSTDEC1, F, ACCESS
-00E2  CFE7     MOVFF INDF1, FSR2L
-00E4  FFD9     NOP
-00E6  0012     RETURN 0
-175:           
+167:                   doneFinal:
+168:           
+169:                   asm_reset:
+170:                       BCF PORTB, 0, ACCESS //1
+00C8  9081     BCF PORTB, 0, ACCESS
+171:           
+172:                       MOVLW 135 //1
+00CA  0E87     MOVLW 0x87
+173:                   loop:
+174:                       ADDLW -1 //1
+00CC  0FFF     ADDLW 0xFF
+175:                       BNZ loop //1 if false, 2 if true
+00CE  E1FE     BNZ 0xCC
 176:           
 177:           
-178:           
-179:           //            CALL asm_reset,1
-180:           //
-181:           //            CALL asm_zero,1 //2
-182:           //            CALL asm_zero,1 //2
-183:           //            CALL asm_zero,1 //2
-184:           //            CALL asm_zero,1 //2
-185:           //            CALL asm_zero,1 //2
-186:           //            CALL asm_zero,1 //2
-187:           //            CALL asm_zero,1 //2
-188:           //            CALL asm_zero,1 //2
-189:           //
-190:           //            CALL asm_one,1 //2
-191:           //            CALL asm_one,1 //2
-192:           //            CALL asm_one,1 //2
-193:           //            CALL asm_one,1 //2
-194:           //            CALL asm_one,1 //2
-195:           //            CALL asm_one,1 //2
-196:           //            CALL asm_one,1 //2
-197:           //            CALL asm_one,1 //2
-198:           //
-199:           //            CALL asm_zero,1 //2
-200:           //            CALL asm_zero,1 //2
-201:           //            CALL asm_zero,1 //2
-202:           //            CALL asm_zero,1 //2
-203:           //            CALL asm_zero,1 //2
-204:           //            CALL asm_zero,1 //2
-205:           //            CALL asm_zero,1 //2
-206:           //            CALL asm_zero,1 //2
-207:           
-208:           void delay(void) {
-209:               Delay10KTCYx(254);
-00E8  0EFE     MOVLW 0xFE
-00EA  6EE6     MOVWF POSTINC1, ACCESS
-00EC  EC0D     CALL 0x21A, 0
-00EE  F001     NOP
-00F0  52E5     MOVF POSTDEC1, F, ACCESS
-210:           }
-00F2  0012     RETURN 0
-211:           
-212:           void Delay1TCYx(char n) {
-00F4  CFD9     MOVFF FSR2L, POSTINC1
-00F6  FFE6     NOP
-00F8  CFE1     MOVFF FSR1L, FSR2L
-00FA  FFD9     NOP
-213:               while(--n>0) {
-00FC  0EFE     MOVLW 0xFE
-00FE  06DB     DECF PLUSW2, F, ACCESS
-0100  0EFE     MOVLW 0xFE
-0102  CFDB     MOVFF PLUSW2, __tmp_0
-0104  F004     NOP
-0106  0E00     MOVLW 0x0
-0108  6EE7     MOVWF INDF1, ACCESS
-010A  1804     XORWF __tmp_0, W, ACCESS
-010C  AEE8     BTFSS WREG, 7, ACCESS
-010E  D002     BRA 0x114
-0110  3404     RLCF __tmp_0, W, ACCESS
-0112  D003     BRA 0x11A
-0114  50E7     MOVF INDF1, W, ACCESS
-0116  80D8     BSF STATUS, 0, ACCESS
-0118  5404     SUBFWB __tmp_0, W, ACCESS
-011A  E202     BC 0x120
-011E  D7EE     BRA 0xFC
-214:                   Delay1TCY();
-011C  0000     NOP
-215:               }
-216:           }
-0120  52E5     MOVF POSTDEC1, F, ACCESS
-0122  CFE7     MOVFF INDF1, FSR2L
-0124  FFD9     NOP
-0126  0012     RETURN 0
-217:           
-218:           void reset(void) {
-219:               STRIP_DATA = CLEAR;
-0128  9081     BCF PORTB, 0, ACCESS
-220:               Delay100TCYx(2);
-012A  0E02     MOVLW 0x2
-012C  6EE6     MOVWF POSTINC1, ACCESS
-012E  EC42     CALL 0x284, 0
-0130  F001     NOP
-0132  52E5     MOVF POSTDEC1, F, ACCESS
-221:           }
-0134  0012     RETURN 0
-222:           
-223:           void highFor(char cycles) {
-0136  CFD9     MOVFF FSR2L, POSTINC1
-0138  FFE6     NOP
-013A  CFE1     MOVFF FSR1L, FSR2L
-013C  FFD9     NOP
-224:               STRIP_DATA = SET;
-013E  8081     BSF PORTB, 0, ACCESS
-225:               Delay1TCYx(cycles);
-0140  0EFE     MOVLW 0xFE
-0142  CFDB     MOVFF PLUSW2, POSTINC1
-0144  FFE6     NOP
-0146  DFD6     RCALL Delay1TCYx
-0148  52E5     MOVF POSTDEC1, F, ACCESS
-226:               STRIP_DATA = CLEAR;
-014A  9081     BCF PORTB, 0, ACCESS
-227:               Delay1TCYx(80-cycles);
-014C  0EFE     MOVLW 0xFE
-014E  CFDB     MOVFF PLUSW2, POSTINC1
-0150  FFE6     NOP
-0152  0E50     MOVLW 0x50
-0154  52E5     MOVF POSTDEC1, F, ACCESS
-0156  80D8     BSF STATUS, 0, ACCESS
-0158  54E7     SUBFWB INDF1, W, ACCESS
-015A  6EE6     MOVWF POSTINC1, ACCESS
-015C  DFCB     RCALL Delay1TCYx
-015E  52E5     MOVF POSTDEC1, F, ACCESS
-228:           
-229:           }
-0160  52E5     MOVF POSTDEC1, F, ACCESS
-0162  CFE7     MOVFF INDF1, FSR2L
-0164  FFD9     NOP
-0166  0012     RETURN 0
-230:           
-231:           // (.6 / 10**6) / (1/64000000.0) = 38
-232:           void one(void) {
-233:               highFor(38);
-0168  0E26     MOVLW 0x26
-016A  6EE6     MOVWF POSTINC1, ACCESS
-016C  DFE4     RCALL highFor
-016E  52E5     MOVF POSTDEC1, F, ACCESS
-234:           }
-0170  0012     RETURN 0
-235:           
-236:           // (.25 / 10**6) / (1/64000000.0) = 16
-237:           void zero(void) {
-238:               highFor(16);
-0172  0E10     MOVLW 0x10
-0174  6EE6     MOVWF POSTINC1, ACCESS
-0176  DFDF     RCALL highFor
-0178  52E5     MOVF POSTDEC1, F, ACCESS
-239:           }
-017A  0012     RETURN 0
+178:                   _endasm
+179:           }
+00D0  52E5     MOVF POSTDEC1, F, ACCESS
+00D2  CFE7     MOVFF INDF1, FSR2L
+00D4  FFD9     NOP
+00D6  0012     RETURN 0
+180:           
+181:           void delay(void) {
+182:               Delay10KTCYx(254);
+00D8  0EFE     MOVLW 0xFE
+00DA  6EE6     MOVWF POSTINC1, ACCESS
+00DC  ECC1     CALL 0x182, 0
+00DE  F000     NOP
+00E0  52E5     MOVF POSTDEC1, F, ACCESS
+183:           }
+00E2  0012     RETURN 0
 ---  /MCC18/v3_39/src/traditional/stdclib/__init.c  -----------------------------------------------------
-02A0  0012     RETURN 0
+01EC  0012     RETURN 0
 ---  /MCC18/v3_39/src/traditional/startup/c018i.c  ------------------------------------------------------
-0000  EF34     GOTO 0x268
-0002  F001     NOP
+0000  EFE8     GOTO 0x1D0
+0002  F000     NOP
 0004  0012     RETURN 0
-0268  EE1D     LFSR 1, 0xD00
-026A  F000     NOP
-026C  EE2D     LFSR 2, 0xD00
-026E  F000     NOP
-0270  6AF8     CLRF TBLPTRU, ACCESS
-0272  9C01     BCF 0x1, 6, ACCESS
-0274  ECBE     CALL 0x17C, 0
-0276  F000     NOP
-0278  EC50     CALL 0x2A0, 0
-027A  F001     NOP
-027C  EC0A     CALL 0x14, 0
-027E  F000     NOP
-0280  D7FB     BRA 0x278
-0282  0012     RETURN 0
-017C  0E06     MOVLW 0x6
-017E  6EF6     MOVWF TBLPTRL, ACCESS
-0180  0E00     MOVLW 0x0
-0182  6EF7     MOVWF TBLPTRH, ACCESS
-0184  0E00     MOVLW 0x0
-0186  6EF8     MOVWF TBLPTRU, ACCESS
-0188  010E     MOVLB 0xE
-018A  0009     TBLRD*+
-018C  50F5     MOVF TABLAT, W, ACCESS
-018E  6F05     MOVWF 0x5, BANKED
-0190  0009     TBLRD*+
-0192  50F5     MOVF TABLAT, W, ACCESS
-0194  6F06     MOVWF 0x6, BANKED
-0196  E103     BNZ 0x19E
-0198  6705     TSTFSZ 0x5, BANKED
-019A  D001     BRA 0x19E
-019C  D03D     BRA 0x218
-019E  0009     TBLRD*+
-01A0  50F5     MOVF TABLAT, W, ACCESS
-01A2  6F00     MOVWF i, BANKED
-01A4  0009     TBLRD*+
-01A6  50F5     MOVF TABLAT, W, ACCESS
-01A8  6F01     MOVWF 0x1, BANKED
-01AA  0009     TBLRD*+
-01AC  50F5     MOVF TABLAT, W, ACCESS
-01AE  6F02     MOVWF a, BANKED
-01B0  0009     TBLRD*+
-01B2  0009     TBLRD*+
-01B4  50F5     MOVF TABLAT, W, ACCESS
-01B6  6EE9     MOVWF FSR0L, ACCESS
-01B8  0009     TBLRD*+
-01BA  50F5     MOVF TABLAT, W, ACCESS
-01BC  6EEA     MOVWF FSR0H, ACCESS
-01BE  0009     TBLRD*+
-01C0  0009     TBLRD*+
-01C2  0009     TBLRD*+
-01C4  50F5     MOVF TABLAT, W, ACCESS
-01C6  6F03     MOVWF DelayCounter1, BANKED
-01C8  0009     TBLRD*+
-01CA  50F5     MOVF TABLAT, W, ACCESS
-01CC  6F04     MOVWF __tmp_0, BANKED
-01CE  0009     TBLRD*+
-01D0  0009     TBLRD*+
-01D2  CFF6     MOVFF TBLPTRL, data_ptr
-01D4  FE07     NOP
-01D6  CFF7     MOVFF TBLPTRH, 0xE08
-01D8  FE08     NOP
-01DA  CFF8     MOVFF TBLPTRU, 0xE09
-01DC  FE09     NOP
-01DE  CE00     MOVFF prom, TBLPTRL
-01E0  FFF6     NOP
-01E2  CE01     MOVFF 0xE01, TBLPTRH
-01E4  FFF7     NOP
-01E6  CE02     MOVFF 0xE02, TBLPTRU
-01E8  FFF8     NOP
-01EA  010E     MOVLB 0xE
-01EC  5303     MOVF DelayCounter1, F, BANKED
-01EE  E102     BNZ 0x1F4
-01F0  5304     MOVF __tmp_0, F, BANKED
-01F2  E007     BZ 0x202
-01F4  0009     TBLRD*+
-01F6  50F5     MOVF TABLAT, W, ACCESS
-01F8  6EEE     MOVWF POSTINC0, ACCESS
-01FA  0703     DECF DelayCounter1, F, BANKED
-01FC  E2F8     BC 0x1EE
-01FE  0704     DECF __tmp_0, F, BANKED
-0200  D7F9     BRA 0x1F4
-0202  CE07     MOVFF data_ptr, TBLPTRL
-0204  FFF6     NOP
-0206  CE08     MOVFF 0xE08, TBLPTRH
-0208  FFF7     NOP
-020A  CE09     MOVFF 0xE09, TBLPTRU
-020C  FFF8     NOP
-020E  010E     MOVLB 0xE
-0210  0705     DECF 0x5, F, BANKED
-0212  0E00     MOVLW 0x0
-0214  5B06     SUBWFB 0x6, F, BANKED
-0216  D7BF     BRA 0x196
-0218  0012     RETURN 0
+01D0  EE1D     LFSR 1, 0xD00
+01D2  F000     NOP
+01D4  EE2D     LFSR 2, 0xD00
+01D6  F000     NOP
+01D8  6AF8     CLRF TBLPTRU, ACCESS
+01DA  9C01     BCF 0x1, 6, ACCESS
+01DC  EC72     CALL 0xE4, 0
+01DE  F000     NOP
+01E0  ECF6     CALL 0x1EC, 0
+01E2  F000     NOP
+01E4  EC0A     CALL 0x14, 0
+01E6  F000     NOP
+01E8  D7FB     BRA 0x1E0
+01EA  0012     RETURN 0
+00E4  0E06     MOVLW 0x6
+00E6  6EF6     MOVWF TBLPTRL, ACCESS
+00E8  0E00     MOVLW 0x0
+00EA  6EF7     MOVWF TBLPTRH, ACCESS
+00EC  0E00     MOVLW 0x0
+00EE  6EF8     MOVWF TBLPTRU, ACCESS
+00F0  010E     MOVLB 0xE
+00F2  0009     TBLRD*+
+00F4  50F5     MOVF TABLAT, W, ACCESS
+00F6  6F05     MOVWF 0x5, BANKED
+00F8  0009     TBLRD*+
+00FA  50F5     MOVF TABLAT, W, ACCESS
+00FC  6F06     MOVWF 0x6, BANKED
+00FE  E103     BNZ 0x106
+0100  6705     TSTFSZ 0x5, BANKED
+0102  D001     BRA 0x106
+0104  D03D     BRA 0x180
+0106  0009     TBLRD*+
+0108  50F5     MOVF TABLAT, W, ACCESS
+010A  6F00     MOVWF 0x0, BANKED
+010C  0009     TBLRD*+
+010E  50F5     MOVF TABLAT, W, ACCESS
+0110  6F01     MOVWF 0x1, BANKED
+0112  0009     TBLRD*+
+0114  50F5     MOVF TABLAT, W, ACCESS
+0116  6F02     MOVWF DelayCounter2, BANKED
+0118  0009     TBLRD*+
+011A  0009     TBLRD*+
+011C  50F5     MOVF TABLAT, W, ACCESS
+011E  6EE9     MOVWF FSR0L, ACCESS
+0120  0009     TBLRD*+
+0122  50F5     MOVF TABLAT, W, ACCESS
+0124  6EEA     MOVWF FSR0H, ACCESS
+0126  0009     TBLRD*+
+0128  0009     TBLRD*+
+012A  0009     TBLRD*+
+012C  50F5     MOVF TABLAT, W, ACCESS
+012E  6F03     MOVWF DelayCounter1, BANKED
+0130  0009     TBLRD*+
+0132  50F5     MOVF TABLAT, W, ACCESS
+0134  6F04     MOVWF 0x4, BANKED
+0136  0009     TBLRD*+
+0138  0009     TBLRD*+
+013A  CFF6     MOVFF TBLPTRL, data_ptr
+013C  FE07     NOP
+013E  CFF7     MOVFF TBLPTRH, 0xE08
+0140  FE08     NOP
+0142  CFF8     MOVFF TBLPTRU, 0xE09
+0144  FE09     NOP
+0146  CE00     MOVFF prom, TBLPTRL
+0148  FFF6     NOP
+014A  CE01     MOVFF 0xE01, TBLPTRH
+014C  FFF7     NOP
+014E  CE02     MOVFF 0xE02, TBLPTRU
+0150  FFF8     NOP
+0152  010E     MOVLB 0xE
+0154  5303     MOVF DelayCounter1, F, BANKED
+0156  E102     BNZ 0x15C
+0158  5304     MOVF 0x4, F, BANKED
+015A  E007     BZ 0x16A
+015C  0009     TBLRD*+
+015E  50F5     MOVF TABLAT, W, ACCESS
+0160  6EEE     MOVWF POSTINC0, ACCESS
+0162  0703     DECF DelayCounter1, F, BANKED
+0164  E2F8     BC 0x156
+0166  0704     DECF 0x4, F, BANKED
+0168  D7F9     BRA 0x15C
+016A  CE07     MOVFF data_ptr, TBLPTRL
+016C  FFF6     NOP
+016E  CE08     MOVFF 0xE08, TBLPTRH
+0170  FFF7     NOP
+0172  CE09     MOVFF 0xE09, TBLPTRU
+0174  FFF8     NOP
+0176  010E     MOVLB 0xE
+0178  0705     DECF 0x5, F, BANKED
+017A  0E00     MOVLW 0x0
+017C  5B06     SUBWFB 0x6, F, BANKED
+017E  D7BF     BRA 0xFE
+0180  0012     RETURN 0
 ---  /MCC18/v3_39/src/traditional/proc/p18F25K80.asm  ---------------------------------------------------
-0248  0E41     MOVLW 0x41
-024A  6EF3     MOVWF PRODL, ACCESS
-024C  EE00     LFSR 0, 0x0
-024E  F000     NOP
-0250  0E0E     MOVLW 0xE
-0252  D801     RCALL zero_block
-0254  0012     RETURN 0
-0256  60EA     CPFSLT FSR0H, ACCESS
-0258  D002     BRA compare_l
-025A  6AEE     CLRF POSTINC0, ACCESS
-025C  D7FC     BRA zero_block
-025E  50F3     MOVF PRODL, W, ACCESS
-0260  60E9     CPFSLT FSR0L, ACCESS
-0262  0012     RETURN 0
-0264  6AEE     CLRF POSTINC0, ACCESS
-0266  D7FC     BRA loop_l
+01B0  0E41     MOVLW 0x41
+01B2  6EF3     MOVWF PRODL, ACCESS
+01B4  EE00     LFSR 0, 0x0
+01B6  F000     NOP
+01B8  0E0E     MOVLW 0xE
+01BA  D801     RCALL zero_block
+01BC  0012     RETURN 0
+01BE  60EA     CPFSLT FSR0H, ACCESS
+01C0  D002     BRA compare_l
+01C2  6AEE     CLRF POSTINC0, ACCESS
+01C4  D7FC     BRA zero_block
+01C6  50F3     MOVF PRODL, W, ACCESS
+01C8  60E9     CPFSLT FSR0L, ACCESS
+01CA  0012     RETURN 0
+01CC  6AEE     CLRF POSTINC0, ACCESS
+01CE  D7FC     BRA loop_l
 ---  /MCC18/v3_39/src/traditional/delays/d10ktcyx.asm  --------------------------------------------------
-021A  0EFF     MOVLW 0xFF
-021C  50E3     MOVF PLUSW1, W, ACCESS
-021E  6E03     MOVWF DelayCounter1, ACCESS
-0220  0EEF     MOVLW 0xEF
-0222  D001     BRA D10K_1
-0224  0EF3     MOVLW 0xF3
-0226  6EE7     MOVWF INDF1, ACCESS
-0228  2EE7     DECFSZ INDF1, F, ACCESS
-022A  EF14     GOTO 0x228
-022C  F001     NOP
-022E  0E0C     MOVLW 0xC
-0230  6E02     MOVWF a, ACCESS
-0232  6AE7     CLRF INDF1, ACCESS
-0234  2EE7     DECFSZ INDF1, F, ACCESS
-0236  EF1A     GOTO 0x234
-0238  F001     NOP
-023A  2E02     DECFSZ a, F, ACCESS
-023C  EF19     GOTO 0x232
-023E  F001     NOP
-0240  2E03     DECFSZ DelayCounter1, F, ACCESS
-0242  EF12     GOTO 0x224
-0244  F001     NOP
-0246  0012     RETURN 0
----  /MCC18/v3_39/src/traditional/delays/d100tcyx.asm  --------------------------------------------------
-0284  0EFF     MOVLW 0xFF
-0286  50E3     MOVF PLUSW1, W, ACCESS
-0288  6E03     MOVWF DelayCounter1, ACCESS
-028A  0E1B     MOVLW 0x1B
-028C  D000     BRA 0x28E
-028E  D001     BRA D100_1
-0290  0E20     MOVLW 0x20
-0292  6EE7     MOVWF INDF1, ACCESS
-0294  2EE7     DECFSZ INDF1, F, ACCESS
-0296  D7FE     BRA 0x294
-0298  2E03     DECFSZ DelayCounter1, F, ACCESS
-029A  D7FA     BRA D100x
-029C  D000     BRA 0x29E
-029E  0012     RETURN 0
+0182  0EFF     MOVLW 0xFF
+0184  50E3     MOVF PLUSW1, W, ACCESS
+0186  6E03     MOVWF DelayCounter1, ACCESS
+0188  0EEF     MOVLW 0xEF
+018A  D001     BRA D10K_1
+018C  0EF3     MOVLW 0xF3
+018E  6EE7     MOVWF INDF1, ACCESS
+0190  2EE7     DECFSZ INDF1, F, ACCESS
+0192  EFC8     GOTO 0x190
+0194  F000     NOP
+0196  0E0C     MOVLW 0xC
+0198  6E02     MOVWF DelayCounter2, ACCESS
+019A  6AE7     CLRF INDF1, ACCESS
+019C  2EE7     DECFSZ INDF1, F, ACCESS
+019E  EFCE     GOTO 0x19C
+01A0  F000     NOP
+01A2  2E02     DECFSZ DelayCounter2, F, ACCESS
+01A4  EFCD     GOTO 0x19A
+01A6  F000     NOP
+01A8  2E03     DECFSZ DelayCounter1, F, ACCESS
+01AA  EFC6     GOTO 0x18C
+01AC  F000     NOP
+01AE  0012     RETURN 0

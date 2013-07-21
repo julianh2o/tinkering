@@ -10,19 +10,23 @@
 #define STATUS_LED PORTBbits.RB1
 
 void delay(void);
-void wait(void);
-void highFor(char cycles);
-void reset(void);
-void one(void);
-void zero(void);
-void Delay1TCYx(char n);
 
-char led_buffer[6] = {10,155,255,0,255,255};
+void setLEDs();
+void sendBatch(char * ptr, char len);
+void sendReset();
 
-int adjust = 0;
+#define DATA_SIZE_1 255
+
+//RAINBOW
+const char led_buffer[DATA_SIZE_1] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15};
+//const char led_buffer[DATA_SIZE_1+1] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0};
+
+//BLUE EVERY 10
+//const char led_buffer[DATA_SIZE_1] = {0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0};
+
+
+
 void main(void) {
-    int i = 0;
-    int a;
     STRIP_DATA_TRIS = OUTPUT;
     STATUS_TRIS = OUTPUT;
     PORTBbits.RB2 = OUTPUT;
@@ -39,14 +43,53 @@ void main(void) {
 
     INTCON2bits.RBPU = 0b0;
 
+    setLEDs();
+}
+
+void setLEDs() {
+    sendReset();
+    sendBatch(&led_buffer,DATA_SIZE_1);
+    //sendBatch(&led_buffer2,DATA_SIZE_2);
+    sendReset();
+}
+
+void sendReset() {
+    _asm
+        //################### ASM RESET ##############
+        // sents a reset to the LED strip
+        asm_reset:
+            BCF PORTB, 0, ACCESS //1
+
+            MOVLW 135 //1
+        loop:
+            ADDLW -1 //1
+            BNZ loop //1 if false, 2 if true
+
+    _endasm
+}
+
+void sendBatch(char * ptr, char len) {
         _asm
-            CALL asm_reset,1
 
-            //loop counter
-            MOVLW 3 //1
-            MOVWF RXB1D5, ACCESS //1
+        asm_reset:
+            BCF PORTB, 0, ACCESS //1
 
+            MOVLW 135 //1
+        loop:
+            ADDLW -1 //1
+            BNZ loop //1 if false, 2 if true
+
+
+
+            //loop over elements
+//            MOVLW  //1
+//            MOVWF RXB1D4, ACCESS //1
             LFSR 0,led_buffer //1
+
+        nextLED:
+            //loop over colors
+            MOVLW 255 //1
+            MOVWF RXB1D5, ACCESS //1
             
             //one: high 5, low 5
             //zero: high 2, low 8
@@ -94,36 +137,35 @@ void main(void) {
             //Transmit a zero (high 2, low 8)
             BCF PORTB, 0, ACCESS //1
             BZ doneFinal
-            INCF FSR0, 0, ACCESS
+            INCF FSR0, 1, ACCESS
             DECFSZ RXB1D5, 1, ACCESS
             GOTO loadNewData //2
+//            DECFSZ RXB1D4, 1, ACCESS
+//            GOTO nextLED
             GOTO doneFinal
 
         carryBitSetFinal:
             //Transmit a one (high 5, low 5)
+            //increment memory address
+            INCF FSR0, 1, ACCESS
+            //Load next memory location into a register
             MOVF INDF0, 0, ACCESS //1
             MOVWF RXB1D7, ACCESS //1
-            MOVLW 7 //1
+
+            //OUTPUT LOW
             BCF PORTB, 0, ACCESS //1
+            //restart counter at 7
+            MOVLW 7 //1
             MOVWF RXB1D6, ACCESS //1
-            INCF FSR0, 0, ACCESS
+
             DECFSZ RXB1D5, 1, ACCESS
             GOTO sendBitsLoop //2
+//            DECFSZ RXB1D4, 1, ACCESS
+//            GOTO nextLED
             GOTO doneFinal
 
         doneFinal:
 
-
-
-
-
-            
-
-
-        
-        GOTO skipSubroutines
-        //################### ASM RESET ##############
-        // sents a reset to the LED strip
         asm_reset:
             BCF PORTB, 0, ACCESS //1
 
@@ -132,108 +174,10 @@ void main(void) {
             ADDLW -1 //1
             BNZ loop //1 if false, 2 if true
 
-            RETURN 1 //2
-
-
-        // ############### CLEAR 10 ################
-        // clears the first 10 LEDs to off
-        clear10:
-            CALL asm_reset,1
-
-            //CLEAR BITS
-            MOVLW 240 //1
-        loop:
-            BSF PORTB, 0, ACCESS //1
-            NOP
-            BCF PORTB, 0, ACCESS //1
-            NOP
-            NOP
-            NOP
-            NOP
-            NOP
-            NOP
-
-            ADDLW -1 //1
-            BNZ loop //1 if false, 2 if true
-
-            CALL asm_reset,1
-
-            RETURN 1
-
-
-
-        skipSubroutines:
 
         _endasm
-//
-//        STRIP_DATA = SET;
-//        delay();
-//        STRIP_DATA = CLEAR;
-//        delay();
-    //}
 }
-
-
-
-
-//            CALL asm_reset,1
-//
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//            CALL asm_one,1 //2
-//
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
-//            CALL asm_zero,1 //2
 
 void delay(void) {
     Delay10KTCYx(254);
-}
-
-void Delay1TCYx(char n) {
-    while(--n>0) {
-        Delay1TCY();
-    }
-}
-
-void reset(void) {
-    STRIP_DATA = CLEAR;
-    Delay100TCYx(2);
-}
-
-void highFor(char cycles) {
-    STRIP_DATA = SET;
-    Delay1TCYx(cycles);
-    STRIP_DATA = CLEAR;
-    Delay1TCYx(80-cycles);
-
-}
-
-// (.6 / 10**6) / (1/64000000.0) = 38
-void one(void) {
-    highFor(38);
-}
-
-// (.25 / 10**6) / (1/64000000.0) = 16
-void zero(void) {
-    highFor(16);
 }

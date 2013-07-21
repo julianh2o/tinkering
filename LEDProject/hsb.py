@@ -22,12 +22,22 @@ def hsv2rgb(h, s, v):
     elif hi == 4: r, g, b = t, p, v
     elif hi == 5: r, g, b = v, p, q
     r, g, b = int(r * 255), int(g * 255), int(b * 255)
-    return r, g, b
+    return g/16, r/16, b/16
 
+strip_length = 125
 numbers = []
-for i in range(0,360):
-	numbers += hsv2rgb(i,1,1)
+for i in range(0,strip_length):
+    hue = (float(i)/strip_length) * 360.0
+    numbers += hsv2rgb(hue,1,1)
 
-print numbers;
+out = "char led_buffer[STRIP_LENGTH*3] = {"
+i = 0;
+for n in numbers:
+    if (i > 255):
+        break;
+    i+=1
+    out += "%d," % n
+out = out[:-1]+"};"
+print out;
 
 print "Length: ",numbers.__len__();
