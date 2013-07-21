@@ -2,7 +2,7 @@
 
 color = 0;
 numbers = [];
-while (color <= 84):
+while (color <= 120):
     r = 0
     g = 0
     b = 0
