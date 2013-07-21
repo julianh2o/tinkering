@@ -39,72 +39,8 @@ void main(void) {
 
     INTCON2bits.RBPU = 0b0;
 
-//    if (led_buffer[0] == 0) {
-//        PORTBbits.RB1 = SET;
-//    }
-//
-//    if (led_buffer2[0] == 0) {
-//        PORTBbits.RB1 = SET;
-//    }
-    
-//    _asm
-//            //MOVLW 1
-//            //MOVWF RXB1D7, ACCESS //1
-//            //MOVFF led_buffer, RXB1D7
-//
-//            LFSR 0,led_buffer //1
-//            MOVF INDF0, 0, ACCESS //1
-//            MOVWF RXB1D7, ACCESS //1
-//
-//
-//            //MOVFF INDF1, RXB1D7 //2
-//
-//            //NOP
-//            MOVF RXB1D7, 0, ACCESS
-//            BZ doneset
-//        doneclear:
-//            BCF PORTB, 1, ACCESS //1
-//            GOTO done
-//
-//        doneset:
-//            BSF PORTB, 1, ACCESS //1
-//
-//        done:
-//
-//
-//    _endasm
-//    while(1) {
-//        //STATUS_LED = !STATUS_LED;
-//        delay();
-//    }
-
-//        i = led_buffer[0];
-//        a = 5;
-//        a = a+i;
-//        i = a;
-        //i++;
         _asm
-            //presetup
-
-//            MOVLW 255
-//            MOVWF PLUSW2, ACCESS //1
-//
-//            BSF PORTB, 0, ACCESS //1
-//            RLCF PLUSW2, 1, 0 //1
-//
-//
-//            BC carryBitSet //1 or 2
-//        carryBitClear:
-//            BCF PORTB, 0, ACCESS //1
-//        carryBitSet:
-
             CALL asm_reset,1
-
-            //GOTO done
-
-            //setup
-            //brightness
-
 
             //loop counter
             MOVLW 8 //1
@@ -116,12 +52,8 @@ void main(void) {
             LFSR 0,led_buffer //1
             MOVF INDF0, 0, ACCESS //1
             MOVWF RXB1D7, ACCESS //1
-            //MOVLW 30
-            //MOVWF RXB1D7, ACCESS //1
-            //MOVFF led_buffer, RXB1D7
-            //NOP
         fill_loop:
-            BCF STATUS, 0, ACCESS //1
+            //BCF STATUS, 0, ACCESS //1
             RLCF RXB1D7, 1, 0 //1
         
             //start
@@ -132,6 +64,8 @@ void main(void) {
             BCF PORTB, 0, ACCESS //1
             NOP
             NOP
+            NOP
+            NOP //extra nop
             DECF RXB1D6, 1, ACCESS //1
             BNZ fill_loop //1 if false, 2 if true
             GOTO done //2
@@ -140,6 +74,8 @@ void main(void) {
             //Transmit a one (high 5, low 5)
             DECF RXB1D6, 1, ACCESS //1
             NOP
+            NOP
+            NOP //extra nop
             BCF PORTB, 0, ACCESS //1
             BNZ fill_loop //1 if false, 2 if true
             GOTO done //2
