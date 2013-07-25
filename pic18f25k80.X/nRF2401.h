@@ -1,5 +1,4 @@
 #include "nRF2401_config.h"
-#include "constants.h"
 
 //****************************************************/
 // SPI(nRF24L01) commands
@@ -9,7 +8,7 @@
 #define R_RX_PL_WID     0x60  // Define RX payload length
 #define RD_RX_PLOAD     0x61  // Define RX payload register address
 #define WR_TX_PLOAD     0xA0  // Define TX payload register address
-#define WR_TX_PLOAD_NOACK     0xB0  // Define TX payload with no ACK 
+#define WR_TX_PLOAD_NOACK     0xB0  // Define TX payload with no ACK
 #define W_ACK_PAYLOAD   0xA8  // Define ACK payload (default = Pipe0)
 #define FLUSH_TX        0xE1  // Define flush TX register command
 #define FLUSH_RX        0xE2  // Define flush RX register command
@@ -29,7 +28,7 @@
 #define SETUP_RETR      0x04  // 'Setup Auto. Retrans' register address
 #define RF_CH           0x05  // 'RF channel' register address
 #define RF_SETUP        0x06  // 'RF setup' register address
-#define STATUS          0x07  // 'Status' register address
+#define STATUS_REG      0x07  // 'Status' register address
 #define OBSERVE_TX      0x08  // 'Observe TX' register address
 #define CD              0x09  // 'Carrier Detect' register address
 #define RX_ADDR_P0      0x0A  // 'RX address pipe0' register address
@@ -49,12 +48,17 @@
 #define DYNPD    		0x1C  // per pipe DPL control
 #define FEATURE    		0x1D  // 'Feature' register address
 
+#define clear		0
+#define set     	1
+#define output		0
+#define input		1
+
 //nRF defines
 //***************************************************/
 #define TX_ADR_WIDTH    5   // 5 unsigned chars TX(RX) address width
 #define TX_PLOAD_WIDTH  32  // 4 unsigned chars TX payload
 
-//SPI = Serial Peripheral Interface
+
 unsigned char SPI_RW(unsigned char);
 unsigned char SPI_RW_Reg(unsigned char, unsigned char);
 unsigned char SPI_Read(unsigned char);
@@ -62,6 +66,14 @@ unsigned char SPI_Read(unsigned char);
 unsigned char SPI_Read_Buf(unsigned char, unsigned char *, unsigned char);
 unsigned char SPI_Write_Buf(unsigned char, unsigned char *, unsigned char);
 
+#define NO_ACK			0x00
+#define YES_ACK			0x01
+#define NO_DATA			0x00
+#define YES_DATA		0x01
+
+void nrf_init(void);
+unsigned char nrf_Send(unsigned char * tx_buf, unsigned char * rx_buf);
+unsigned char nrf_Recieve(unsigned char * rx_buf);
 
 void initTX(void);
 void initRX(void);

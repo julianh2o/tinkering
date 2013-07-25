@@ -8,6 +8,11 @@ unsigned char SPI_RW(unsigned char);
 unsigned char SPI_RW_Reg(unsigned char, unsigned char);
 unsigned char SPI_Read(unsigned char);
 void waitForDevice(void);
+void beginTx(void);
+
+//reading config
+//first byte = address to read
+//second byte = junk byte to swap with the devices
 
 //============ Status_nRF ===================================================
 //SPI - Sends and receives simultaneously
@@ -21,7 +26,7 @@ unsigned char getStatus(void) {
 	status = SPI_BUFFER;
 	CSN = set;
 	return status;
-}
+}'
 
 /**************************************************
  * Function: SPI_RW();
@@ -221,11 +226,9 @@ void initTX(void)
 /*
  * Waits for 30 cycles for the device
  */
-void waitForDevice(void)
-{
+void waitForDevice(void) {
     char i;
-    for (i=0; i<30; i++)
-	{
+    for (i=0; i<30; i++) {
         Nop();
     }
 }
