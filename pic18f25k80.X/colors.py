@@ -8,15 +8,15 @@ while (color <= 124):
     b = 0
     if (color % 10 == 0): r = 1
     if (color % 30 == 0): g = 1
-    r= 1;
-    g = 1;
-    b = 1;
+    r= "0b00";
+    g = "0b00";
+    b = "0b00";
     numbers += [g,r,b]
     color += 1
 
 out = "char led_buffer[%d] = {" % numbers.__len__()
 for n in numbers:
-    out += "%d," % n
+    out += "%s," % n
 out = out[:-1]+"};"
 print out;
     
