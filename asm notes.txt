@@ -1,0 +1,36 @@
+Penultimate
+1 - increment FSR
+2 - load next data
+
+final
+2 - Reset bit count to 6
+2 - decrement color and reset if necessary
+2 - decrement LED count and end if necessary
+
+
+
+
+
+
+HIGH
+0
+LOW
+0
+0
+0
+
+0
+0
+0
+0
+
+HIGH
+0
+0
+0
+0
+LOW
+0
+0
+0
+0

@@ -1,0 +1,14 @@
+GND red
+VCC yellow
+CE black (RC1)
+CSN white (RC2)
+SCK yellow (pin 14 SCK)
+MOSI red (pin 16 SDO)
+MISO green (pin 15 SDI)
+IRQ black
+
+CE (chip enable)
+CSN
+MOSI (master out, serial in)
+MISO (master in, serial out)
+IRQ (configure this to be a quick indicator of events)
