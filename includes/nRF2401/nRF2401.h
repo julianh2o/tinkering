@@ -63,11 +63,11 @@ unsigned char SPI_Read_Buf(unsigned char, unsigned char *, unsigned char);
 unsigned char SPI_Write_Buf(unsigned char, unsigned char *, unsigned char);
 
 
-void initTX(void);
-void initRX(void);
-unsigned char getStatus(void);
-unsigned char write(unsigned char * /* Data */);
-unsigned char read(unsigned char * /* Buffer */);
+void nrf_initTX(void);
+void nrf_initRX(void);
+unsigned char nrf_getStatus(void);
+unsigned char nrf_write(unsigned char * /* Data */);
+unsigned char nrf_read(unsigned char * /* Buffer */);
 
 
 

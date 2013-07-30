@@ -18,7 +18,7 @@ void beginTx(void);
 //SPI - Sends and receives simultaneously
 //To get the status, send junk data and the status is sent back simultaneously
 //SSPBUF filled with junk becomes filled with the status
-unsigned char getStatus(void) {
+unsigned char nrf_getStatus(void) {
 	unsigned char status;
 	CSN = clear;
 	SPI_BUFFER = 0xFF;
@@ -143,7 +143,7 @@ unsigned char SPI_Write_Buf(unsigned char reg, unsigned char *pBuf, unsigned cha
  * After init, CE is toggled high, which means that
  * this device is now ready to receive a datapacket.
 /**************************************************/
-void initRX(void) {
+void nrf_initRX(void) {
 	unsigned char status;
 	
 	CE = clear;
@@ -186,7 +186,7 @@ void initRX(void) {
  * ToDo: One high pulse(>10us) on CE will now send this
  * packet and expext an acknowledgment from the RX device.
  **************************************************/
-void initTX(void)
+void nrf_initTX(void)
 {
 	unsigned char tx_buf[TX_PLOAD_WIDTH];
 	unsigned char status=0;

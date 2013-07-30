@@ -115,6 +115,7 @@ void main(void) {
 
 void setLEDs() {
     //sendReset();
+    //sendBatch(&led_buffer,STRIP_LENGTH);
     sendBatch(&led_buffer,STRIP_LENGTH);
     //sendReset();
 }
@@ -187,7 +188,7 @@ void sendBatch(char * ptr, char len) {
         done:
             NOP
         
-        //## SEND PENULTIMATE BIT##
+            //## SEND PENULTIMATE BIT##
             RLCF RXB1D7, 1, 0 //1
             BSF PORTB, 0, ACCESS //1
             BC carryBitSetPenultimate //1 or 2
@@ -200,13 +201,50 @@ void sendBatch(char * ptr, char len) {
             MOVF INDF0, 0, ACCESS //1
             MOVWF RXB1D7, ACCESS //1
             
+            //restart counter at 6
+            MOVLW 6 //1
+            MOVWF RXB1D6, ACCESS //1
+
             NOP
-            BRA donePenultimate //2
+        
+            RLCF RXB1D7, 1, 0 //1
+            BSF PORTB, 0, ACCESS //1
+            BC carryBitSetFinal //1 or 2
+        
+            //copied and pasted from below
+            BCF PORTB, 0, ACCESS //1
+
+            //decrement color index and branch if not zero
+            DECF RXB1D5, 1, ACCESS
+            BNZ restartLoopOneNop //1 or 2 (we dont actually need to load new data.. we did already, we need to burn cycles)
+            //BNZ dataLoadedSendBits //2
+
+            //Decrement the current LED
+            DECF RXB1D4, 1, ACCESS //1
+            BZ doneFinal //1 or 2
+
+            //reset color index
+            MOVLW 3 //1
+            MOVWF RXB1D5, ACCESS //1
+
+            RLCF RXB1D7, 1, 0 //1
+            BSF PORTB, 0, ACCESS //1
+
+            BC carryBitSet //1 or 2
+
+            BCF PORTB, 0, ACCESS //1
+            BRA carryBitClearContinue
+            //copied and pasted from below
+
+
 
         carryBitSetPenultimate:
             //Transmit a one (high 5, low 5)
-            NOP
-            NOP
+        
+            //restart counter at 6
+            MOVLW 6 //1
+            MOVWF RXB1D6, ACCESS //1
+
             BCF PORTB, 0, ACCESS //1
 
             //we have 3 spare cycles here, lets use these to load the next byte into memory
@@ -261,12 +299,12 @@ void sendBatch(char * ptr, char len) {
         carryBitSetFinal:
             //Transmit a one (high 5, low 5)
 
-            //restart counter at 6
-            MOVLW 6 //1
-            MOVWF RXB1D6, ACCESS //1
+            NOP
+            //NOP
 
             //decrement color index and branch if not zero (this is straddling the BCF to set the output low)
             DECF RXB1D5, 1, ACCESS
+        
             //OUTPUT LOW
             BCF PORTB, 0, ACCESS //1
             BNZ sendBitsLoop //1 or 2 (we dont actually need to load new data.. we did already, we need to burn cycles)
