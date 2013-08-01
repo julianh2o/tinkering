@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ledmain.c
+SOURCEFILES_QUOTED_IF_SPACED=ledmaininterrupt.c serlcd.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ledmain.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ledmain.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ledmaininterrupt.o ${OBJECTDIR}/serlcd.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ledmaininterrupt.o.d ${OBJECTDIR}/serlcd.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ledmain.o
+OBJECTFILES=${OBJECTDIR}/ledmaininterrupt.o ${OBJECTDIR}/serlcd.o
 
 # Source Files
-SOURCEFILES=ledmain.c
+SOURCEFILES=ledmaininterrupt.c serlcd.c
 
 
 CFLAGS=
@@ -86,20 +86,34 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/ledmain.o: ledmain.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/ledmaininterrupt.o: ledmaininterrupt.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/ledmain.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmain.o   ledmain.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/ledmain.o 
-	@${FIXDEPS} "${OBJECTDIR}/ledmain.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	@${RM} ${OBJECTDIR}/ledmaininterrupt.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmaininterrupt.o   ledmaininterrupt.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/ledmaininterrupt.o 
+	@${FIXDEPS} "${OBJECTDIR}/ledmaininterrupt.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/serlcd.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
+	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 else
-${OBJECTDIR}/ledmain.o: ledmain.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/ledmaininterrupt.o: ledmaininterrupt.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/ledmain.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmain.o   ledmain.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/ledmain.o 
-	@${FIXDEPS} "${OBJECTDIR}/ledmain.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	@${RM} ${OBJECTDIR}/ledmaininterrupt.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmaininterrupt.o   ledmaininterrupt.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/ledmaininterrupt.o 
+	@${FIXDEPS} "${OBJECTDIR}/ledmaininterrupt.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/serlcd.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
+	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 endif
 

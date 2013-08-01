@@ -1,7 +1,7 @@
 #include "config.h"
 #include "constants.h"
-#include <p18F25K80.h>
 #include <delays.h>
+#include "serlcd.h"
 
 #define STRIP_DATA_TRIS TRISBbits.TRISB0
 #define STRIP_DATA PORTBbits.RB0
@@ -11,9 +11,9 @@
 
 void delay(void);
 
-void setLEDs();
-void sendBatch(char * ptr, char len);
-void sendReset();
+extern void setLEDs(void);
+extern void sendBatch(char * ptr, char len);
+extern void sendReset(void);
 
 #define STRIP_LENGTH 125
 #define DATA_SIZE 375
@@ -44,79 +44,58 @@ char led_buffer[375] = {GREEN,RED,BLUE,GREEN,RED,BLUE,GREEN,RED,BLUE,GREEN,RED,B
 //char * rainbowPointer;
 
 void main(void) {
-    short offset,i_strip,i_rainbow;
+    char val;
 
     //ledPointer = led_buffer;
     //rainbowPointer = rainbow;
     
     STRIP_DATA_TRIS = OUTPUT;
     STATUS_TRIS = OUTPUT;
+    STATUS_LED = 0;
 
     //setup 16mhz
     //OSCCONbits.IRCF = 0b111; //sets internal osc to 16Mhz
     //OSCCONbits.SCS = 0b11;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
     //OSCTUNEbits.PLLEN = 0b0;
 
-    //setup 32mhz
-    OSCCONbits.IRCF = 0b110; //sets internal osc to 16Mhz
-    OSCCONbits.SCS = 0b00;  //select internal osc as main source (This may or may not be redundant, based on your config bits.  It's not clear to me.)
-    OSCTUNEbits.PLLEN = 0b1;
+    //setup internal oscillator
+    OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
+    OSCCONbits.SCS = 0b00;
+    OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
 
-    INTCON2bits.RBPU = 0b0;
+    //set up timer
+//    T0CONbits.TMR0ON = 1; //enable timer 0
+//    T0CONbits.T0CS = 0; //select clock (0=internal,1=t0pin)
+//    T0CONbits.PSA = 1; //disable's prescaler (1=disable, 0=enable)
+//    T0CONbits.T08BIT = 1; //set mode (1=8bit mode, 0=16bit mode)
+//    T0CONbits.T0SE = 1; //edge select (1=falling edge, 0=rising edge)
+//    T0CONbits.T0PS = 0b000; //configure prescaler 000=1:2
 
-//    _asm
-//       // ############### CLEAR 10 ################
-//        // clears the first 10 LEDs to off
-//        clear10:
-//            CALL asm_reset,1
-//
-//            //CLEAR BITS
-//            MOVLW 240 //1
-//        loop:
-//            BSF PORTB, 0, ACCESS //1
-//            NOP
-//            BCF PORTB, 0, ACCESS //1
-//            NOP
-//            NOP
-//            NOP
-//            NOP
-//            NOP
-//            NOP
-//
-//            ADDLW -1 //1
-//            BNZ loop //1 if false, 2 if true
-//
-//            CALL asm_reset,1
-//
-//            RETURN 1
-//
-//        _endasm
+    setupLCD();
 
+    
+    sendCommand(0x01);
+    sendLiteralBytes("Foo");
+    STATUS_LED = !STATUS_LED;
+    
     while(1) {
-        STATUS_LED = 1;
-        //delay();
-        setLEDs();
-        STATUS_LED = 0;
-        //delay();
-        setLEDs();
+        Nop();
     }
 
-    offset = 0;
-    while(1) {
-        i_rainbow = offset;
-        for (i_strip=0; i_strip<STRIP_LENGTH; i_strip++) {
-            led_buffer[i_strip*3] = rainbow[i_rainbow*3];
-            led_buffer[i_strip*3+1] = rainbow[i_rainbow*3+1];
-            led_buffer[i_strip*3+2] = rainbow[i_rainbow*3+2];
-            i_rainbow++;
-            if (i_rainbow > STRIP_LENGTH) i_rainbow=0;
+    //initialize timer
+//    TMR0L = 0;
+//    delay();
+//    val = TMR0L;
 
-        }
-        setLEDs();
-        offset ++;
-        if (offset > STRIP_LENGTH) {
-            offset = 0;
-        }
+    
+
+    while(1) {
+//        if (TMR0L > 5) {
+//            TMR0L = 0; //clear timer
+//            STATUS_LED = 1;
+//        }
+        Nop();
+        Nop();
     }
 }
 
