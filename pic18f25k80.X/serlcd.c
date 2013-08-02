@@ -1,46 +1,41 @@
 #include <p18F25K80.h>
-//#include "serlcd.h"
+#include "serlcd.h"
 
-#define FOSC 16000000
-//#define FOSC 64000000
-#define LCD_BAUD 9600
-void setupLCD(void);
-void sendByte(char byte);
-void sendCommand(char byte);
-void sendLiteralBytes(rom const char * bytes);
-void sendBytes(char * bytes);
-
-void sendDigit(unsigned char digit);
-void sendCharAsBase(unsigned char num, unsigned char base);
-
-void sendDec(unsigned char num);
-void sendHex(unsigned char num);
-void sendBin(unsigned char num);
-////////////////////////////////////
-
-const int SPBRG_value = ((FOSC/LCD_BAUD)/16)-1;
-//const int SPBRG_value = ((FOSC/LCD_BAUD)/64)-1;
+//const int SPBRG_value = ((FOSC/LCD_BAUD)/16)-1;
+const int SPBRG_value = ((FOSC/LCD_BAUD)/64)-1;
 
 void setupLCD(void) {
-    //setup lcd
-    //turn the ports on
     TRISCbits.TRISC6 = 1;
     RCSTA1bits.SPEN = 1;
     TXSTA1bits.TXEN = 1;
 
     TXSTA1bits.SYNC = 0;
     BAUDCON1bits.BRG16 = 0;
-    TXSTA1bits.BRGH = 1 ;
-    //TXSTA1bits.BRGH = 0;
+    TXSTA1bits.BRGH = 0;
     
     SPBRG1 = SPBRG_value;
-    //SPBRG1 = 104;
-    //setup lcd
+}
+
+void sendSpecialCommand(char byte) {
+    sendByte(0x7C); //control character
+    sendByte(byte);
 }
 
 void sendCommand(char byte) {
     sendByte(0xFE); //control character
-    sendByte(byte); //control character
+    sendByte(byte);
+}
+
+void setPosition(char row, char column) {
+    sendCommand(0x80 + 64*row + column);
+}
+
+void setBacklight(char brightness) {
+    sendSpecialCommand(128+brightness);
+}
+
+void clear() {
+    sendCommand(0x01);
 }
 
 void sendByte(char byte) {
