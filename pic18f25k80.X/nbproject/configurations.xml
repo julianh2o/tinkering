@@ -8,16 +8,13 @@
       <itemPath>nRF2401.h</itemPath>
       <itemPath>nRF2401_config.h</itemPath>
       <itemPath>config.h</itemPath>
-      <itemPath>serlcd.h</itemPath>
-      <itemPath>serlcd_config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="f1" displayName="Linker Files" projectFiles="true">
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>serlcd.c</itemPath>
-      <itemPath>lcdtest.c</itemPath>
+      <itemPath>ledmaininterrupt.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -166,26 +163,6 @@
         </C18LanguageToolchain>
       </item>
       <item path="nRF2401_config.h" ex="true" overriding="false">
-        <C18>
-        </C18>
-        <C18-AS>
-        </C18-AS>
-        <C18-LD>
-        </C18-LD>
-        <C18LanguageToolchain>
-        </C18LanguageToolchain>
-      </item>
-      <item path="serlcd.h" ex="true" overriding="false">
-        <C18>
-        </C18>
-        <C18-AS>
-        </C18-AS>
-        <C18-LD>
-        </C18-LD>
-        <C18LanguageToolchain>
-        </C18LanguageToolchain>
-      </item>
-      <item path="serlcd_config.h" ex="true" overriding="false">
         <C18>
         </C18>
         <C18-AS>

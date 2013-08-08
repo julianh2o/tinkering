@@ -3,3 +3,4 @@ dist/
 funclist
 .DS_Store
 *.err
+*.swp

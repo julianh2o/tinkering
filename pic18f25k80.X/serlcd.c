@@ -1,8 +1,8 @@
 #include <p18F25K80.h>
 #include "serlcd.h"
 
-//const int SPBRG_value = ((FOSC/LCD_BAUD)/16)-1;
-const int SPBRG_value = ((FOSC/LCD_BAUD)/64)-1;
+//const int SPBRG_value = (FOSC/(LCD_BAUD*64))-1; //doesnt work
+const int SPBRG_value = ((FOSC/LCD_BAUD)/16)-1;
 
 void setupLCD(void) {
     TRISCbits.TRISC6 = 1;
@@ -11,7 +11,7 @@ void setupLCD(void) {
 
     TXSTA1bits.SYNC = 0;
     BAUDCON1bits.BRG16 = 0;
-    TXSTA1bits.BRGH = 0;
+    TXSTA1bits.BRGH = 1;
     
     SPBRG1 = SPBRG_value;
 }
