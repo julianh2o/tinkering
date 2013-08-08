@@ -19,7 +19,7 @@ extern void sendReset(void);
 #define DATA_SIZE 375
 
 #define GREEN 0
-#define RED 0
+#define RED 20
 #define BLUE 20
 
 #pragma idata large_idata
@@ -66,92 +66,25 @@ void main(void) {
     INTCONbits.PEIE = 1;
 
 
-    //setupLCD();
-    //sendCommand(0x01);
-    _asm
-    _endasm
-
     while(1) {
-        STATUS_LED = 1;
+        setLEDs();
 
         delay();
         delay();
         delay();
 
-        _asm
-                MOVLW 72 //1
-            loop:
-                BSF PORTB, 0, ACCESS
-                NOP
-                NOP
-                NOP
-                BCF PORTB, 0, ACCESS
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-
-                ADDLW -1 //1
-
-                BNZ loop //1 if false, 2 if true
-        _endasm
-
-        sendReset();
-        STATUS_LED = 0;
-
-        delay();
-        delay();
-        delay();
+        val = led_buffer[0];
+        led_buffer[0] = led_buffer[1];
+        led_buffer[1] = val;
     }
 
     while(1) {
         Nop();
     }
-
-//Junk code
-        //fill remaining bits in 3 byte chunk (with 0s)
-        _asm
-                MOVLW 16 //1
-            loop:
-                BSF PORTB, 0, ACCESS
-                NOP
-                NOP
-                NOP
-                BCF PORTB, 0, ACCESS
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-                NOP
-
-                ADDLW -1 //1
-
-                BNZ loop //1 if false, 2 if true
-        _endasm
 }
 
 void setLEDs() {
-    //sendReset();
-    //sendBatch(&led_buffer,STRIP_LENGTH);
     sendBatch(&led_buffer,STRIP_LENGTH);
-    //sendReset();
 }
 
 void sendReset() {
