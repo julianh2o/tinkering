@@ -8,9 +8,6 @@ while (color <= 124):
     b = 0
     if (color % 10 == 0): r = 1
     if (color % 30 == 0): g = 1
-    r= "RED";
-    g = "GREEN";
-    b = "BLUE";
     numbers += [g,r,b]
     color += 1
 
