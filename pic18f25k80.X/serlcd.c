@@ -4,6 +4,8 @@
 //const int SPBRG_value = (FOSC/(LCD_BAUD*64))-1; //doesnt work
 const int SPBRG_value = ((FOSC/LCD_BAUD)/16)-1;
 
+char charactersSinceFill = 0;
+
 void setupLCD(void) {
     TRISCbits.TRISC6 = 1;
     RCSTA1bits.SPEN = 1;
@@ -43,17 +45,22 @@ void sendByte(char byte) {
     while(!TXSTA1bits.TRMT) Nop();
 }
 
+void sendVisibleByte(char byte) {
+    charactersSinceFill++;
+    sendByte(byte);
+}
+
 void sendLiteralBytes(rom const char * bytes) {
     while(*bytes) {
-        sendByte(*bytes++);
+        sendVisibleByte(*bytes++);
     }
 }
 
 void sendDigit(unsigned char digit) {
     if (digit >= 10)
-        sendByte(digit + 65);
+        sendVisibleByte(digit + 65);
     else
-        sendByte(digit + 48);
+        sendVisibleByte(digit + 48);
 }
 
 void sendCharAsBase(unsigned char num, unsigned char base) {
@@ -89,4 +96,14 @@ void sendHex(unsigned char num) {
 void sendBin(unsigned char num) {
     sendLiteralBytes("0b");
     sendCharAsBase(num,2);
+}
+
+void fill(void) {
+    char i = 16*2-charactersSinceFill-1;
+    //sendDec(i);
+    
+    while(i-- >= 0) {
+        sendLiteralBytes(" ");
+    }
+    charactersSinceFill = 0;
 }

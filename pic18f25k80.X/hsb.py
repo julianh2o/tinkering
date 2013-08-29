@@ -28,8 +28,8 @@ strip_length = 125
 numbers = []
 for i in range(0,strip_length):
     hue = (float(i)/strip_length) * 360.0
-    #numbers += hsv2rgb(hue,1,1)
-    numbers += 0,0,0
+    numbers += hsv2rgb(hue,1,1)
+    #numbers += 0,0,0
 
 out = "char led_buffer[DATA_SIZE] = {"
 i = 0;

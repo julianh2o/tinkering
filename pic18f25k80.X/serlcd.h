@@ -2,6 +2,7 @@
 
 void setupLCD(void);
 void sendByte(char byte);
+void sendVisibleByte(char byte);
 
 void sendCommand(char byte);
 void sendSpecialCommand(char byte);
@@ -18,3 +19,5 @@ void sendCharAsBase(unsigned char num, unsigned char base);
 void sendDec(unsigned char num);
 void sendHex(unsigned char num);
 void sendBin(unsigned char num);
+
+void fill(void);

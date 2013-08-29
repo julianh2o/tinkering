@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ledmaininterrupt.c
+SOURCEFILES_QUOTED_IF_SPACED=nRF2401.c ledstripwireless.c serlcd.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ledmaininterrupt.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ledmaininterrupt.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/nRF2401.o ${OBJECTDIR}/ledstripwireless.o ${OBJECTDIR}/serlcd.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/nRF2401.o.d ${OBJECTDIR}/ledstripwireless.o.d ${OBJECTDIR}/serlcd.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ledmaininterrupt.o
+OBJECTFILES=${OBJECTDIR}/nRF2401.o ${OBJECTDIR}/ledstripwireless.o ${OBJECTDIR}/serlcd.o
 
 # Source Files
-SOURCEFILES=ledmaininterrupt.c
+SOURCEFILES=nRF2401.c ledstripwireless.c serlcd.c
 
 
 CFLAGS=
@@ -86,20 +86,48 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/ledmaininterrupt.o: ledmaininterrupt.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/ledmaininterrupt.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmaininterrupt.o   ledmaininterrupt.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/ledmaininterrupt.o 
-	@${FIXDEPS} "${OBJECTDIR}/ledmaininterrupt.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	@${RM} ${OBJECTDIR}/nRF2401.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/nRF2401.o   nRF2401.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
+	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/ledstripwireless.o: ledstripwireless.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/ledstripwireless.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledstripwireless.o   ledstripwireless.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/ledstripwireless.o 
+	@${FIXDEPS} "${OBJECTDIR}/ledstripwireless.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/serlcd.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
+	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 else
-${OBJECTDIR}/ledmaininterrupt.o: ledmaininterrupt.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/ledmaininterrupt.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledmaininterrupt.o   ledmaininterrupt.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/ledmaininterrupt.o 
-	@${FIXDEPS} "${OBJECTDIR}/ledmaininterrupt.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	@${RM} ${OBJECTDIR}/nRF2401.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/nRF2401.o   nRF2401.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
+	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/ledstripwireless.o: ledstripwireless.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/ledstripwireless.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledstripwireless.o   ledstripwireless.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/ledstripwireless.o 
+	@${FIXDEPS} "${OBJECTDIR}/ledstripwireless.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/serlcd.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
+	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 endif
 

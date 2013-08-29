@@ -7,8 +7,8 @@
 #include <math.h>
 #include <delays.h>
 
-#define LED		PORTBbits.RB2
-#define TRIS_LED	TRISBbits.TRISB2
+#define LED		PORTCbits.RC0
+#define TRIS_LED	TRISCbits.TRISC0
 
 void HIGH_ISR(void);
 
@@ -20,46 +20,35 @@ volatile unsigned char rx_buf[32];
 void main(void) {
     nrf_init();
 
-    INTCON2bits.RBPU = set;
-    OSCCON = 0b01100011; //internal oscilator
-    OSCCON2 = 0b00000000;
-    RCONbits.IPEN = clear;
-    ODCON = 0b00000000;
-    T1CONbits.SOSCEN = clear;
-    T3CONbits.SOSCEN = clear;
-    ANCON1= 0b00000000;
-
     TRIS_CE = output;
     TRIS_CSN = output;
     TRIS_IRQ = input;
-
-    TRIS_LED = output;
-
-    ANCON0 = 0b00000001;
-
     TRIS_SCK = output;
     TRIS_MISO = input;
     TRIS_MOSI = output;
 
+    OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
+    OSCCONbits.SCS = 0b00;
+    OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
 
-//    INTCONbits.PEIE = clear;
-//    INTCONbits.GIE = clear;
-//    T0CON = 0b10001000; //bit3: prescale disable, bits 0-2 prescale.  Timer Period.
-//    T0CON = 0b11000110; //bit3: prescale disable, bits 0-2 prescale.  Timer Period.
-//    INTCONbits.TMR0IE = set;
-//    INTCONbits.TMR0IF = clear;
-    //T2CON = 0b00000100; //prescale 1, postscale 1
-//
-//    PIE1bits.TMR2IE = clear;
-//    IPR1bits.TMR2IP = clear;
-//    PIR1bits.TMR2IF = clear;
+    //set up timer
+    T0CONbits.TMR0ON = 1; //enable timer 0
+    T0CONbits.T0CS = 0; //select clock (0=internal,1=t0pin)
+    T0CONbits.PSA = 1; //disable's prescaler (1=disable, 0=enable)
+    T0CONbits.T08BIT = 1; //set mode (1=8bit mode, 0=16bit mode)
+    T0CONbits.T0SE = 1; //edge select (1=falling edge, 0=rising edge)
+    T0CONbits.T0PS = 0b000; //configure prescaler 000=1:2
 
-    Delay10KTCYx(50);
+    //Set up timer0 interrupts
+    INTCONbits.TMR0IE = 1;
+    INTCONbits.TMR0IF = 0;
+    INTCONbits.PEIE = 1;
+
+    //Misc port config
+    TRIS_LED = output;
 
     initRX();
     Delay10KTCYx(20);
-
-    //INTCONbits.GIE = set;
 
     while(1) {
         nrf_Recieve(&rx_buf);
@@ -68,22 +57,3 @@ void main(void) {
     }
 
 }
-//
-////====== high interrupt service address =======================================
-//#pragma code high_vector=0x08
-//void INT_AT_HIGH_VECTOR(void) {
-//    _asm GOTO HIGH_ISR _endasm
-//}
-//#pragma code
-//
-////====== high interrupt service routine =======================================
-//#pragma interrupt HIGH_ISR
-//void HIGH_ISR(void) {
-//    nrf_Recieve(&rx_buf);
-//    LED = 1;
-//    //LED = ~rx_buf[0];
-//
-//    INTCONbits.TMR0IF = clear;
-//}
-//
-//

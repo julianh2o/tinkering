@@ -13,7 +13,7 @@
 #define FLUSH_TX        0xE1  // Define flush TX register command
 #define FLUSH_RX        0xE2  // Define flush RX register command
 #define REUSE_TX_PL     0xE3  // Define reuse TX payload register command
-#define NOP             0xFF  // Define No Operation, might be used to read status register
+//#define NOP             0xFF  // Define No Operation, might be used to read status register
 //***************************************************/
 #define RX_DR    0x40
 #define TX_DS    0x20
@@ -47,11 +47,6 @@
 #define FIFO_STATUS     0x17  // 'FIFO Status Register' register address
 #define DYNPD    		0x1C  // per pipe DPL control
 #define FEATURE    		0x1D  // 'Feature' register address
-
-#define clear		0
-#define set     	1
-#define output		0
-#define input		1
 
 //nRF defines
 //***************************************************/

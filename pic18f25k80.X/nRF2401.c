@@ -13,11 +13,11 @@ unsigned char SPI_Read(unsigned char);
 //============ Status_nRF ===================================================
 unsigned char getStatus(void) {
 	unsigned char status;
-	CSN = clear;
+	CSN = CLEAR;
 	SSPBUF = 0xFF;
 	while(~SSPSTATbits.BF);
 	status = SSPBUF;
-	CSN = set;
+	CSN = SET;
 	return status;
 }
 
@@ -48,10 +48,10 @@ unsigned char SPI_RW_Reg(unsigned char reg, unsigned char value)
 {
   unsigned char status;
 
-  CSN = clear;                   // CSN low, init SPI transaction
+  CSN = CLEAR;                   // CSN low, init SPI transaction
   status = SPI_RW(reg);             // select register
   SPI_RW(value);                    // ..and write value to it..
-  CSN = set;                    // CSN high again
+  CSN = SET;                    // CSN high again
 
   return(status);                   // return nRF24L01 status unsigned char
 }
@@ -67,10 +67,10 @@ unsigned char SPI_Read(unsigned char reg)
 {
   unsigned char reg_val;
 
-  CSN = clear;                // CSN low, initialize SPI communication...
+  CSN = CLEAR;                // CSN low, initialize SPI communication...
   SPI_RW(reg);                   // Select register to read from..
   reg_val = SPI_RW(0);           // ..then read register value
-  CSN = set;                  // CSN high, terminate SPI communication
+  CSN = SET;                  // CSN high, terminate SPI communication
 
   return(reg_val);               // return register value
 }
@@ -87,7 +87,7 @@ unsigned char SPI_Read_Buf(unsigned char reg, unsigned char *pBuf, unsigned char
 {
   unsigned char status,i;
 
-  CSN = clear;                   // Set CSN low, init SPI tranaction
+  CSN = CLEAR;                   // Set CSN low, init SPI tranaction
   status = SPI_RW(reg);       	    // Select register to write to and read status unsigned char
 
   for(i=0;i<bytes;i++)
@@ -97,7 +97,7 @@ unsigned char SPI_Read_Buf(unsigned char reg, unsigned char *pBuf, unsigned char
 	//pBuf[1] = 0x88;
   }
 
-  CSN = set;                   // Set CSN high again
+  CSN = SET;                   // Set CSN high again
 
   return(status);                  // return nRF24L01 status unsigned char
 }
@@ -114,14 +114,14 @@ unsigned char SPI_Write_Buf(unsigned char reg, unsigned char *pBuf, unsigned cha
 {
   unsigned char status,i;
 
-  CSN = clear;                   // Set CSN low, init SPI tranaction
+  CSN = CLEAR;                   // Set CSN low, init SPI tranaction
   status = SPI_RW(reg);             // Select register to write to and read status unsigned char
   for(i=0;i<bytes; i++)             // then write all unsigned char in buffer(*pBuf)
   {
     SPI_RW(*pBuf);
 	*pBuf++;
   }
-  CSN = set;                   // Set CSN high again
+  CSN = SET;                   // Set CSN high again
   return(status);                  // return nRF24L01 status unsigned char
 }
 /**************************************************/
@@ -130,11 +130,11 @@ void nrf_init(void) {
 	//===configure SPI for nordic RF module
 	SPI_STATUS = 0b00000000;	//SPI, clock on idle to active clk trans
 	SPI_CLK_EDGE = 1; 	//clock on idle to active clk trans
-	SPI_CONFIG_1 = 0b00100001;	//SPI setup. clk at 1/16; idle low.
+	SPI_CONFIG_1 = 0b00100010;	//SPI SETup. clk at 1/16; idle low.
 	SPI_CLK_POL = 0;	//clock polarity, idle low
-	SPI_ENABLE = set;	//enable SPI module
-	CE = set;  //default to Standby II, clear to default to Standby I (which is low power mode; no TX/RX functions)
-	CSN = set;
+	SPI_ENABLE = SET;	//enable SPI module
+	CE = SET;  //default to Standby II, CLEAR to default to Standby I (which is low power mode; no TX/RX functions)
+	CSN = SET;
 }
 
 /**************************************************
@@ -149,13 +149,13 @@ unsigned char nrf_Send(unsigned char * tx_buf, unsigned char * rx_buf) {
 
 	//SPI_RW_Reg(FLUSH_TX,0);
 
-	SPI_RW_Reg(WRITE_REG + STATUS_REG, MAX_RT);	//clear max RT bit
+	SPI_RW_Reg(WRITE_REG + STATUS_REG, MAX_RT);	//CLEAR max RT bit
 	SPI_Write_Buf(WR_TX_PLOAD,*tx_buf,TX_PLOAD_WIDTH); //load the data into the NRF
 
 	//wait for response
-	CE = set;
+	CE = SET;
 	Delay1KTCYx(3);
-	CE = clear;
+	CE = CLEAR;
 
 	status = getStatus();
 	if(status & RX_DR) {
@@ -193,7 +193,7 @@ unsigned char nrf_Recieve(unsigned char * rx_buf) {
 			SPI_Read_Buf(RD_RX_PLOAD,rx_buf,32);
 			ffstat = SPI_Read(FIFO_STATUS);
 		}
-		SPI_RW_Reg(WRITE_REG + STATUS_REG, RX_DR);	//clear RX flag
+		SPI_RW_Reg(WRITE_REG + STATUS_REG, RX_DR);	//CLEAR RX flag
 		return YES_DATA;
 	} else {
 		return NO_DATA;
@@ -208,7 +208,7 @@ unsigned char nrf_Recieve(unsigned char * rx_buf) {
  *
  * Description:
  * This function initializes one nRF24L01 device to
- * RX Mode, set RX address, writes RX payload width,
+ * RX Mode, SET RX address, writes RX payload width,
  * select RF channel, datarate & LNA HCURR.
  * After init, CE is toggled high, which means that
  * this device is now ready to receive a datapacket.
@@ -216,13 +216,13 @@ unsigned char nrf_Recieve(unsigned char * rx_buf) {
 void initRX(void) {
 	unsigned char status;
 
-	CE = clear;
+	CE = CLEAR;
 
 	SPI_Write_Buf(WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);    // Writes TX_Address to nRF24L01
 	SPI_Write_Buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH); // Use the same address on the RX device as the TX device
 
 	SPI_RW_Reg(ACTIVATE,0x73);					//activate feature register
-	SPI_RW_Reg(WRITE_REG + FEATURE, 0x06);		//set features for DPL
+	SPI_RW_Reg(WRITE_REG + FEATURE, 0x06);		//SET features for DPL
 	SPI_RW_Reg(WRITE_REG + DYNPD, PIPE_0);		//enable DPL on pipe 0
 
 	SPI_RW_Reg(WRITE_REG + EN_AA, 0x01);      // Enable Auto.Ack:Pipe0
@@ -234,7 +234,7 @@ void initRX(void) {
 	SPI_RW_Reg(WRITE_REG + CONFIG, 0x0f);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:RX. RX_DR enabled..
 	Delay10TCYx(3);
 
-	CE = set;
+	CE = SET;
 
 	//  This device is now ready to receive one packet of 32 unsigned chars payload from a TX device sending to address
 	//  '3443101001', with auto acknowledgment, retransmit count of 10, RF channel 40 and datarate = 1Mbps.
@@ -251,9 +251,9 @@ void initRX(void) {
  *
  * Description:
  * This function initializes one nRF24L01 device to
- * TX mode, set TX address, set RX address for auto.ack,
+ * TX mode, SET TX address, SET RX address for auto.ack,
  * fill TX payload, select RF channel, datarate & TX pwr.
- * PWR_UP is set, CRC(2 unsigned chars) is enabled, & PRIM:TX.
+ * PWR_UP is SET, CRC(2 unsigned chars) is enabled, & PRIM:TX.
  *
  * ToDo: One high pulse(>10us) on CE will now send this
  * packet and expext an acknowledgment from the RX device.
@@ -265,13 +265,13 @@ void initTX(void)
 	unsigned char key=0;
 	unsigned char config_reg;
 
-	CE = clear;
+	CE = CLEAR;
 
 	SPI_Write_Buf(WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);    // Writes TX_Address to nRF24L01
 	SPI_Write_Buf(WRITE_REG + RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH); // RX_Addr0 same as TX_Adr for Auto.Ack
 
 	SPI_RW_Reg(ACTIVATE,0x73);					//activate feature register
-	SPI_RW_Reg(WRITE_REG + FEATURE, 0x06);		//set features for DPL
+	SPI_RW_Reg(WRITE_REG + FEATURE, 0x06);		//SET features for DPL
 	SPI_RW_Reg(WRITE_REG + DYNPD, PIPE_0);		//enable DPL on pipe 0
 
 	SPI_RW_Reg(WRITE_REG + EN_AA, 0x01);      // Enable Auto.Ack:Pipe0
@@ -288,7 +288,7 @@ void initTX(void)
 	SPI_RW_Reg(WRITE_REG + CONFIG, 0x0E);     // Set PWR_UP bit, enable CRC(2 unsigned chars) & Prim:TX. MAX_RT & TX_DS enabled..
 	Delay10TCYx(3);
 
-	CE = set;
+	CE = SET;
 
 	//LCD_cmd(LINE_1);
 	//LCD_putch('T'); LCD_putch('X'); LCD_putch('.'); LCD_putch('.');
