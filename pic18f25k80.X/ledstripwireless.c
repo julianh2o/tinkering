@@ -13,6 +13,9 @@
 #define STATUS_TRIS TRISCbits.TRISC0
 #define STATUS_LED PORTCbits.RC0
 
+#define BUTTON_TRIS TRISBbits.TRISB1
+#define BUTTON PORTBbits.RB1
+
 #define STRIP_LENGTH 125
 #define DATA_SIZE 375
 
@@ -35,7 +38,15 @@ void main(void) {
     //Misc config
     STRIP_DATA_TRIS = OUTPUT;
     STATUS_TRIS = OUTPUT;
+    BUTTON_TRIS = INPUT;
     STATUS_LED = 0;
+
+    //This is to toggle pins from digital to analog
+    //unimp, RD3, RD2, RD1     RD1, AN10, AN9, AN8 (in order)
+    ANCON1 = 0b11111110;
+
+
+
 
     //NRF port configure (todo: move me)
     TRIS_CE = OUTPUT;
@@ -86,7 +97,8 @@ void run(void) {
         status = getStatus();
         
         nrf_Recieve(&rx_buf);
-        STATUS_LED = rx_buf[0];
+        STATUS_LED = BUTTON;
+        //STATUS_LED = rx_buf[0];
         
         if (status & 0b1000000) sendLiteralBytes("DR ");
         if (status & 0b100000) sendLiteralBytes("DS ");
