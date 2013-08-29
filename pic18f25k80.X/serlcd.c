@@ -1,9 +1,6 @@
 #include <p18F25K80.h>
 #include "serlcd.h"
 
-//const int SPBRG_value = (FOSC/(LCD_BAUD*64))-1; //doesnt work
-const int SPBRG_value = ((FOSC/LCD_BAUD)/16)-1;
-
 char charactersSinceFill = 0;
 
 void setupLCD(void) {
@@ -11,11 +8,11 @@ void setupLCD(void) {
     RCSTA1bits.SPEN = 1;
     TXSTA1bits.TXEN = 1;
 
-    TXSTA1bits.SYNC = 0;
-    BAUDCON1bits.BRG16 = 0;
-    TXSTA1bits.BRGH = 1;
+    TXSTA1bits.SYNC = LCD_SYNC;
+    BAUDCON1bits.BRG16 = LCD_BRG16;
+    TXSTA1bits.BRGH = LCD_BRGH;
     
-    SPBRG1 = SPBRG_value;
+    SPBRG1 = LCD_SPBRG;
 }
 
 void sendSpecialCommand(char byte) {
@@ -29,6 +26,7 @@ void sendCommand(char byte) {
 }
 
 void setPosition(char row, char column) {
+    charactersSinceFill = column*16+row;
     sendCommand(0x80 + 64*row + column);
 }
 
@@ -84,8 +82,33 @@ void sendCharAsBase(unsigned char num, unsigned char base) {
     }
 }
 
+void sendIntAsBase(unsigned int num, unsigned int base) {
+    unsigned int quotient;
+    char remainder;
+    char i = 0;
+    char digits[16];
+
+    while(1) {
+        quotient = num / base;
+        remainder = (char)(num - quotient*base);
+        num = quotient;
+
+        digits[i++] = remainder;
+
+        if (quotient == 0) break;
+    }
+
+    while (i != 0) {
+        sendDigit(digits[--i]);
+    }
+}
+
 void sendDec(unsigned char num) {
     sendCharAsBase(num,10);
+}
+
+void sendIntDec(unsigned int num) {
+    sendIntAsBase(num,10);
 }
 
 void sendHex(unsigned char num) {

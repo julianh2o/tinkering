@@ -15,8 +15,10 @@ void sendBytes(char * bytes);
 
 void sendDigit(unsigned char digit);
 void sendCharAsBase(unsigned char num, unsigned char base);
+void sendIntAsBase(unsigned int num, unsigned int base);
 
 void sendDec(unsigned char num);
+void sendIntDec(unsigned int num);
 void sendHex(unsigned char num);
 void sendBin(unsigned char num);
 

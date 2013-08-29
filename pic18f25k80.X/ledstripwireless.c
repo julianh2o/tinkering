@@ -3,6 +3,7 @@
 #include "p18f25k80.h"
 #include "constants.h"
 #include "nRF2401.h"
+#include "adc.h"
 #include <timers.h>
 #include <math.h>
 #include <delays.h>
@@ -16,19 +17,31 @@
 #define BUTTON_TRIS TRISBbits.TRISB1
 #define BUTTON PORTBbits.RB1
 
-#define STRIP_LENGTH 125
+#define MODE_SELECT_TRIS TRISBbits.TRISB2
+#define MODE_SELECT PORTBbits.RB2
+
+//#define STRIP_LENGTH 125
+#define STRIP_LENGTH 5
 #define DATA_SIZE 375
 
 #pragma idata large_idata
 //char led_buffer[375] = {0,10,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,10,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,10,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,10,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,10,0,0,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,0,10,0,10,0,0,0,10,0,0,10,0,0,10,0,0,10};
-char led_buffer[375] = {0,2,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,2,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,2,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,2,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,2,0,0,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,2,0,0,0,2,0,0,2,0,0,2,0,0,2};
+char led_buffer[375] = {10,0,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 const char rainbow[375] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,2,15,0,2,15,0,3,15,0,4,15,0,5,15,0,5,15,0,6,15,0,7,15,0,8,15,0,8,15,0,9,15,0,10,15,0,11,15,0,11,15,0,12,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,13,0,15,12,0,15,11,0,15,10,0,15,9,0,15,9,0,15,8,0,15,7,0,15,6,0,15,6,0,15,5,0,15,4,0,15,3,0,15,3,0,15,2,0,15,1,0,15,0};
 #pragma idata
 
 unsigned char tx_buf[TX_PLOAD_WIDTH];
-volatile unsigned char rx_buf[32];
+volatile unsigned char rx_buf[TX_PLOAD_WIDTH];
 
 void run(void);
+void runStrip(void);
+void runControl(void);
+
+void displayStatus(char status);
+void sendStrip();
+void loadFrame(char frame);
+void updateBuffer();
+
 void doRainbow(void);
 void delay(void);
 extern void updateLEDs(void);
@@ -39,14 +52,12 @@ void main(void) {
     STRIP_DATA_TRIS = OUTPUT;
     STATUS_TRIS = OUTPUT;
     BUTTON_TRIS = INPUT;
+    MODE_SELECT_TRIS = INPUT;
     STATUS_LED = 0;
 
     //This is to toggle pins from digital to analog
     //unimp, RD3, RD2, RD1     RD1, AN10, AN9, AN8 (in order)
-    ANCON1 = 0b11111110;
-
-
-
+    ANCON1 = 0b11111000;
 
     //NRF port configure (todo: move me)
     TRIS_CE = OUTPUT;
@@ -59,7 +70,7 @@ void main(void) {
     //oscillator setup
     OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
     OSCCONbits.SCS = 0b00;
-    OSCTUNEbits.PLLEN = 0b0; //1=pllx4 enabled
+    OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
 
     //set up timer
     T0CONbits.TMR0ON = 1; //enable timer 0
@@ -74,47 +85,132 @@ void main(void) {
     INTCONbits.TMR0IF = 0;
     INTCONbits.PEIE = 1;
 
-    nrf_init();
-    setupLCD();
-    
-//    while(1) {
-//        STATUS_LED = 1;
-//        updateLEDs();
-//        STATUS_LED = 0;
-//    }
-
     run();
+    
     while(1);
 }
 
 void run(void) {
+    if (MODE_SELECT) {
+        runControl();
+    } else {
+        runStrip();
+    }
+}
+
+void updateBuffer() {
+    char loc = rx_buf[0];
+    char i;
+
+    //0,1,2,3,4 = (status info)
+    //0 = multiplier
+    //5-29 = data
+    for (i = 0; i<25; i++) {
+        led_buffer[25*loc+i] = rx_buf[5+i];
+    }
+}
+
+void runStrip() {
+    int i;
     char status;
 
+    nrf_init();
     initRX();
+    setupLCD();
+
+    Delay10KTCYx(100);
+
     while(1) {
-        setPosition(0,0);
-        //clear();
         status = getStatus();
+        displayStatus(status);
         
-        nrf_Recieve(&rx_buf);
-        STATUS_LED = BUTTON;
-        //STATUS_LED = rx_buf[0];
+        STATUS_LED = nrf_Recieve(&rx_buf);
+
+        updateBuffer();
         
-        if (status & 0b1000000) sendLiteralBytes("DR ");
-        if (status & 0b100000) sendLiteralBytes("DS ");
-        if (status & 0b10000) sendLiteralBytes("RT ");
-        if (status & 0b1) sendLiteralBytes("TXF ");
-        sendBin(status);
-        fill();
-        //led_buffer[0] = STATUS_LED*10;
-        //updateLEDs();
-        Delay10KTCYx(250);
+        updateLEDs();
+        Delay10KTCYx(50);
     }
+}
+
+int readPotentiometer() {
+    ConvertADC();
+    while( BusyADC() );
+
+    return ReadADC(); // (0,4096)
+}
+
+void loadFrame(char frame) {
+    char i;
+    for (i=0; i<25; i++) {
+        tx_buf[i] = led_buffer[frame*25+i];
+    }
+}
+
+void sendStrip() {
+    char i;
+    for (i=0; i<15; i++) {
+        loadFrame(i);
+        nrf_Send(&tx_buf, &rx_buf);
+    }
+}
+
+void displayStatus(char status) {
+    setPosition(0,0);
+    sendLiteralBytes("Status: ");
+    if (status & 0b1000000) sendLiteralBytes("DR ");
+    if (status & 0b100000) sendLiteralBytes("DS ");
+    if (status & 0b10000) sendLiteralBytes("RT ");
+    if (status & 0b1) sendLiteralBytes("TXF ");
+    sendBin(status);
+    fill();
+}
+
+void runControl() {
+    char status;
+    char i;
+    int value;
+
+    //OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_20_TAD, ADC_CH0 & ADC_INT_OFF, 0b0000);
+
+    nrf_init();
+    initTX();
+    setupLCD();
+    while(1) {
+
+        //value = readPotentiometer();
+        //value = value >> 4;
+
+        tx_buf[0] = 0;
+        tx_buf[1] = 0;
+        tx_buf[2] = 0;
+        tx_buf[3] = 0;
+        tx_buf[4] = 0;
+
+        for (i=5; i<30; i++) {
+            tx_buf[i] = 5;
+        }
+
+        status = getStatus();
+        displayStatus(status);
+        //STATUS_LED = !STATUS_LED;
+        STATUS_LED = nrf_Send(&tx_buf, &rx_buf);
+
+        //for (i=0; i<10; i++) {
+            //led_buffer[i] = value;
+        //}
+
+        //sendStrip();
+        Delay10KTCYx(50);
+    }
+
+    //CloseADC();
 }
 
 void doRainbow(void) {
     short i,offset,i_rainbow;
 
+    offset = 0;
     while(1) {
         i_rainbow = offset;
         for (i=0; i<STRIP_LENGTH; i++) {
@@ -172,6 +268,7 @@ void updateLEDs() {
             //bit shift and set carry flag
             RLCF RXB1D7, 1, 0 //1
             BC transmitOne //1 or 2
+            //NOP
 
         transmitZero:
             BCF PORTB, 0, ACCESS ///////////////////////////////////////////////// CLEAR

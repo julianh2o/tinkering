@@ -150,7 +150,7 @@ unsigned char nrf_Send(unsigned char * tx_buf, unsigned char * rx_buf) {
 	//SPI_RW_Reg(FLUSH_TX,0);
 
 	SPI_RW_Reg(WRITE_REG + STATUS_REG, MAX_RT);	//CLEAR max RT bit
-	SPI_Write_Buf(WR_TX_PLOAD,*tx_buf,TX_PLOAD_WIDTH); //load the data into the NRF
+	SPI_Write_Buf(WR_TX_PLOAD,tx_buf,TX_PLOAD_WIDTH); //load the data into the NRF
 
 	//wait for response
 	CE = SET;
@@ -160,7 +160,7 @@ unsigned char nrf_Send(unsigned char * tx_buf, unsigned char * rx_buf) {
 	status = getStatus();
 	if(status & RX_DR) {
 		SPI_RW_Reg(WRITE_REG + STATUS_REG, RX_DR);
-		SPI_Read_Buf(RD_RX_PLOAD,*rx_buf,2);
+		SPI_Read_Buf(RD_RX_PLOAD,rx_buf,2);
 		SPI_RW_Reg(FLUSH_RX,0);
 		return YES_ACK;
 	} else {
