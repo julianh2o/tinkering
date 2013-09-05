@@ -87,6 +87,7 @@ void main(void) {
     INTCONbits.TMR0IE = 1;
     INTCONbits.TMR0IF = 0;
     INTCONbits.PEIE = 1;
+    INTCONbits.GIE = 0;
 
     run();
     
@@ -164,7 +165,7 @@ void sendStrip() {
 void displayStatus(char status) {
     setPosition(0,0);
     sendLiteralBytes("stat:");
-    sendBin(status);
+    sendBinPad(status);
     fillLine();
     
     if (runFlag == 0) {
@@ -174,6 +175,7 @@ void displayStatus(char status) {
     runFlag = !runFlag;
     
     setPosition(1,0);
+    if (status & 0b10000000) sendLiteralBytes("RES ");
     if (status & 0b1000000) sendLiteralBytes("DR ");
     if (status & 0b100000) sendLiteralBytes("DS ");
     if (status & 0b10000) sendLiteralBytes("RT ");
@@ -182,8 +184,8 @@ void displayStatus(char status) {
 }
 
 void runControl() {
-    char status;
-    char config;
+    unsigned char status;
+    unsigned char config;
     char i;
     int value;
 
@@ -227,9 +229,25 @@ void runControl() {
 //        }
         setupLCD();
         status = getStatus();
-        //config = SPI_Read(CONFIG);
-        //clear();
-        //sendHex(config);
+
+//        config = SPI_Read(CONFIG);
+//        clear();
+//        sendLiteralBytes("config: ");
+//        sendHex(config);
+//        setPosition(1,0);
+//        sendBinPad(config);
+//        delay();
+        
+//        clear();
+//        //sendBinPad(config);
+//
+//        //sendHex(config);
+//        sendDec((unsigned char)150);
+//        sendLiteralBytes(" ");
+//        sendBin(config);
+//        sendLiteralBytes(" ");
+//        sendHex(config);
+//        delay();
         displayStatus(status);
         //STATUS_LED = !STATUS_LED;
         STATUS_LED = nrf_Send(&tx_buf, &rx_buf);

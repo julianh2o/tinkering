@@ -15,22 +15,22 @@ void setupLCD(void) {
     SPBRG1 = LCD_SPBRG;
 }
 
-void sendSpecialCommand(char byte) {
+void sendSpecialCommand(unsigned char byte) {
     sendByte(0x7C); //control character
     sendByte(byte);
 }
 
-void sendCommand(char byte) {
+void sendCommand(unsigned char byte) {
     sendByte(0xFE); //control character
     sendByte(byte);
 }
 
-void setPosition(char row, char column) {
+void setPosition(unsigned char row, unsigned char column) {
     charactersSinceFill = row*16+column;
     sendCommand(0x80 + 64*row + column);
 }
 
-void setBacklight(char brightness) {
+void setBacklight(unsigned char brightness) {
     sendSpecialCommand(128+brightness);
 }
 
@@ -38,12 +38,12 @@ void clear() {
     sendCommand(0x01);
 }
 
-void sendByte(char byte) {
+void sendByte(unsigned char byte) {
     TXREG1 = byte;
     while(!TXSTA1bits.TRMT) Nop();
 }
 
-void sendVisibleByte(char byte) {
+void sendVisibleByte(unsigned char byte) {
     charactersSinceFill++;
     sendByte(byte);
 }
@@ -56,27 +56,26 @@ void sendLiteralBytes(rom const char * bytes) {
 
 void sendDigit(unsigned char digit) {
     if (digit >= 10)
-        sendVisibleByte(digit + 65);
+        sendVisibleByte(digit + 65 - 10);
     else
         sendVisibleByte(digit + 48);
 }
 
-void sendCharAsBase(unsigned char num, unsigned char base) {
-    char quotient;
-    char remainder;
-    char i = 0;
-    char digits[8];
+void sendCharAsBase(unsigned char num, unsigned char base, unsigned char padOutput) {
+    unsigned char quotient;
+    unsigned char remainder;
+    unsigned char i = 0;
+    unsigned char digits[8];
     
-    while(1) {
+    while((padOutput == 0 && quotient != 0) || (padOutput != 0 && i < 8)) {
         quotient = num / base;
+
         remainder = num - quotient*base;
         num = quotient;
 
         digits[i++] = remainder;
-
-        if (quotient == 0) break;
     }
-
+    
     while (i != 0) {
         sendDigit(digits[--i]);
     }
@@ -104,7 +103,7 @@ void sendIntAsBase(unsigned int num, unsigned int base) {
 }
 
 void sendDec(unsigned char num) {
-    sendCharAsBase(num,10);
+    sendCharAsBase(num,10,0);
 }
 
 void sendIntDec(unsigned int num) {
@@ -113,12 +112,17 @@ void sendIntDec(unsigned int num) {
 
 void sendHex(unsigned char num) {
     sendLiteralBytes("0x");
-    sendCharAsBase(num,16);
+    sendCharAsBase(num,16,0);
 }
 
 void sendBin(unsigned char num) {
     sendLiteralBytes("0b");
-    sendCharAsBase(num,2);
+    sendCharAsBase(num,2,0);
+}
+
+void sendBinPad(unsigned char num) {
+    sendLiteralBytes("0b");
+    sendCharAsBase(num,2,1);
 }
 
 void fill(void) {

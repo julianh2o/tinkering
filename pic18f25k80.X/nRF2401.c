@@ -147,7 +147,7 @@ unsigned char nrf_Send(unsigned char * tx_buf, unsigned char * rx_buf) {
 	//unsigned char tx_buf[TX_PLOAD_WIDTH];
 	//volatile unsigned char rx_buf[32];
 
-	//SPI_RW_Reg(FLUSH_TX,0);
+	SPI_RW_Reg(FLUSH_TX,0);
 
 	SPI_RW_Reg(WRITE_REG + STATUS_REG, MAX_RT);	//CLEAR max RT bit
 	SPI_Write_Buf(WR_TX_PLOAD,tx_buf,TX_PLOAD_WIDTH); //load the data into the NRF
