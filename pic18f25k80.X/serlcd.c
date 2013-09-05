@@ -26,7 +26,7 @@ void sendCommand(char byte) {
 }
 
 void setPosition(char row, char column) {
-    charactersSinceFill = column*16+row;
+    charactersSinceFill = row*16+column;
     sendCommand(0x80 + 64*row + column);
 }
 
@@ -129,4 +129,14 @@ void fill(void) {
         sendLiteralBytes(" ");
     }
     charactersSinceFill = 0;
+}
+
+void fillLine(void) {
+    char i = 16-charactersSinceFill-1;
+    if (charactersSinceFill >= 16) return fill();
+
+    while(i-- >= 0) {
+        sendLiteralBytes(" ");
+        charactersSinceFill ++;
+    }
 }

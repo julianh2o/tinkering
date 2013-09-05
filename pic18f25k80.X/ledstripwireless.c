@@ -31,7 +31,7 @@ const char rainbow[375] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15
 #pragma idata
 
 unsigned char tx_buf[TX_PLOAD_WIDTH];
-volatile unsigned char rx_buf[TX_PLOAD_WIDTH];
+unsigned char rx_buf[TX_PLOAD_WIDTH];
 
 void run(void);
 void runStrip(void);
@@ -45,6 +45,8 @@ void updateBuffer();
 void doRainbow(void);
 void delay(void);
 extern void updateLEDs(void);
+
+char runFlag=0;
 
 //========== main =====================================================================
 void main(void) {
@@ -71,6 +73,7 @@ void main(void) {
     OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
     OSCCONbits.SCS = 0b00;
     OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
+    //OSCTUNEbits.PLLEN = 0b0; //1=pllx4 enabled
 
     //set up timer
     T0CONbits.TMR0ON = 1; //enable timer 0
@@ -115,20 +118,23 @@ void runStrip() {
     char status;
 
     nrf_init();
+    delay();
+
     initRX();
-    setupLCD();
+    delay();
 
     Delay10KTCYx(100);
 
     while(1) {
+        setupLCD();
         status = getStatus();
         displayStatus(status);
         
         STATUS_LED = nrf_Recieve(&rx_buf);
 
-        updateBuffer();
-        
-        updateLEDs();
+//        updateBuffer();
+//
+//        updateLEDs();
         Delay10KTCYx(50);
     }
 }
@@ -157,41 +163,73 @@ void sendStrip() {
 
 void displayStatus(char status) {
     setPosition(0,0);
-    sendLiteralBytes("Status: ");
+    sendLiteralBytes("stat:");
+    sendBin(status);
+    fillLine();
+    
+    if (runFlag == 0) {
+        setPosition(0,15);
+        sendLiteralBytes("_");
+    }
+    runFlag = !runFlag;
+    
+    setPosition(1,0);
     if (status & 0b1000000) sendLiteralBytes("DR ");
     if (status & 0b100000) sendLiteralBytes("DS ");
     if (status & 0b10000) sendLiteralBytes("RT ");
     if (status & 0b1) sendLiteralBytes("TXF ");
-    sendBin(status);
     fill();
 }
 
 void runControl() {
     char status;
+    char config;
     char i;
     int value;
 
     //OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_20_TAD, ADC_CH0 & ADC_INT_OFF, 0b0000);
-
+    
     nrf_init();
-    initTX();
-    setupLCD();
-    while(1) {
+    delay();
 
+//    config = SPI_Read(CONFIG);
+//    sendHex(config);
+//    sendLiteralBytes("  ");
+
+    initTX();
+    delay();
+
+//    config = SPI_Read(CONFIG);
+//    sendHex(config);
+//    sendLiteralBytes("  ");
+
+    //while(1);
+    
+
+//    while(1) {
+//        clear();
+//        sendLiteralBytes("hello");
+//        delay();
+//    }
+    while(1) {
+        //STATUS_LED = !STATUS_LED;
         //value = readPotentiometer();
         //value = value >> 4;
 
-        tx_buf[0] = 0;
-        tx_buf[1] = 0;
-        tx_buf[2] = 0;
-        tx_buf[3] = 0;
-        tx_buf[4] = 0;
-
-        for (i=5; i<30; i++) {
-            tx_buf[i] = 5;
-        }
-
+//        tx_buf[0] = 0;
+//        tx_buf[1] = 0;
+//        tx_buf[2] = 0;
+//        tx_buf[3] = 0;
+//        tx_buf[4] = 0;
+//
+//        for (i=5; i<30; i++) {
+//            tx_buf[i] = 5;
+//        }
+        setupLCD();
         status = getStatus();
+        //config = SPI_Read(CONFIG);
+        //clear();
+        //sendHex(config);
         displayStatus(status);
         //STATUS_LED = !STATUS_LED;
         STATUS_LED = nrf_Send(&tx_buf, &rx_buf);

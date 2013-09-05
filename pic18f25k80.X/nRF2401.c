@@ -154,8 +154,9 @@ unsigned char nrf_Send(unsigned char * tx_buf, unsigned char * rx_buf) {
 
 	//wait for response
 	CE = SET;
-	Delay1KTCYx(3);
+	Delay1KTCYx(60);
 	CE = CLEAR;
+        //Delay1KTCYx(4);
 
 	status = getStatus();
 	if(status & RX_DR) {
