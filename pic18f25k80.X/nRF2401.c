@@ -130,7 +130,7 @@ void nrf_init(void) {
 	//===configure SPI for nordic RF module
 	SPI_STATUS = 0b00000000;	//SPI, clock on idle to active clk trans
 	SPI_CLK_EDGE = 1; 	//clock on idle to active clk trans
-	SPI_CONFIG_1 = 0b00100010;	//SPI SETup. clk at 1/16; idle low.
+	SPI_CONFIG_1 = 0b00100010;	//SPI SETup. clk 0b0010=1/64, 0b0001=1/16
 	SPI_CLK_POL = 0;	//clock polarity, idle low
 	SPI_ENABLE = SET;	//enable SPI module
 	CE = SET;  //default to Standby II, CLEAR to default to Standby I (which is low power mode; no TX/RX functions)
