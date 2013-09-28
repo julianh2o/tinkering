@@ -1,0 +1,8 @@
+white	grnd
+black	ce
+brown	sck
+red	miso
+orange	vcc
+yellow	csn
+green	mosi
+blue	irq
