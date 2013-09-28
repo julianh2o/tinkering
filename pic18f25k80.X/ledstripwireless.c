@@ -2,6 +2,7 @@
 
 #include "p18f25k80.h"
 #include "constants.h"
+#include "config.h"
 #include "nRF2401.h"
 #include "adc.h"
 #include <timers.h>
