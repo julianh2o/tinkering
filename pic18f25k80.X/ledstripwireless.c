@@ -136,6 +136,8 @@ void senderMain() {
     delay();
 
     mode = 0;
+
+    offset = 0;
     while(1) {
         if (BUTTON) {
             mode = !mode;
@@ -143,16 +145,22 @@ void senderMain() {
             delay();
         }
 
+        //offset ++;
+
         value = readPotentiometer();
         value = value >> 4;
         value = value >> 1;
         if (value > 124) value = 124;
 
+        offset = value;
+        //if (value > offset) offset++;
+        //if (value < offset) offset--;
+
         if (mode) {
             clearStrip(0,0,0);
-            setLED(value,10,10,10);
+            setLED(offset,10,10,10);
         } else {
-            writeSource(value);
+            writeSource(offset);
         }
         
         sendStrip();
@@ -247,6 +255,7 @@ void sendStrip() {
     short i;
     for (i=0; i<14; i++) {
         loadFrame(i);
+
         STATUS_LED = nrf_Send(&tx_buf, &rx_buf);
     }
 }
@@ -278,6 +287,9 @@ void receiverMain() {
         STATUS_LED = nrf_Recieve(&rx_buf);
 
         updateBuffer();
+        //led_buffer[0] = 0;
+        //led_buffer[1] = 0;
+        //led_buffer[2] = 0;
         updateLEDs();
     }
 }
@@ -290,17 +302,17 @@ void receiverInterrupt() {
 }
 
 void updateBuffer() {
-    char loc = rx_buf[0];
-    short i;
+    int loc = rx_buf[0];
+    int i;
     int n;
 
     //0,1,2,3,4 = (status info)
     //0 = multiplier
     //5-29 = data
     for (i = 0; i<27; i++) {
-        n = ((int)loc)*27+i;
-        if (n > STRIP_LENGTH * 3) continue;
-        
+        n = loc*27+i;
+        if (n > DATA_SIZE) continue;
+
         led_buffer[n] = rx_buf[5+i];
     }
 }
