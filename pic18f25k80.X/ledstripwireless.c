@@ -5,21 +5,31 @@
 #include "config.h"
 #include "nRF2401.h"
 #include "adc.h"
+#include "serlcd.h"
 #include <timers.h>
 #include <math.h>
 #include <delays.h>
 
-#define STRIP_DATA_TRIS TRISBbits.TRISB0
-#define STRIP_DATA PORTBbits.RB0
+#define LED_GREEN_TRIS TRISBbits.TRISB4
+#define LED_GREEN PORTBbits.RB4
 
-#define STATUS_TRIS TRISCbits.TRISC0
-#define STATUS_LED PORTCbits.RC0
+#define LED_RED_TRIS TRISBbits.TRISB5
+#define LED_RED PORTBbits.RB5
+
+#define STRIP_DATA_TRIS TRISAbits.TRISA0
+#define STRIP_DATA PORTAbits.RA0
+
+#define PROBE_TRIS TRISAbits.TRISA1
+#define PROBE PORTAbits.RA1
+
+#define STATUS_TRIS TRISBbits.TRISB4
+#define STATUS_LED PORTBbits.RB4
 
 #define BUTTON_TRIS TRISBbits.TRISB1
 #define BUTTON PORTBbits.RB1
 
-#define MODE_SELECT_TRIS TRISBbits.TRISB2
-#define MODE_SELECT PORTBbits.RB2
+#define MODE_SELECT_TRIS TRISBbits.TRISB0
+#define MODE_SELECT PORTBbits.RB0
 #define MODE_SEND 1
 
 #define STRIP_LENGTH 125
@@ -31,8 +41,8 @@ char led_buffer[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10
 const char source[375] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,2,15,0,2,15,0,3,15,0,4,15,0,5,15,0,5,15,0,6,15,0,7,15,0,8,15,0,8,15,0,9,15,0,10,15,0,11,15,0,11,15,0,12,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,13,0,15,12,0,15,11,0,15,10,0,15,9,0,15,9,0,15,8,0,15,7,0,15,6,0,15,6,0,15,5,0,15,4,0,15,3,0,15,3,0,15,2,0,15,1,0,15,0};
 #pragma idata
 
-unsigned char tx_buf[TX_PLOAD_WIDTH];
-unsigned char rx_buf[TX_PLOAD_WIDTH];
+unsigned char tx_buf[MAX_PAYLOAD];
+unsigned char rx_buf[MAX_PAYLOAD];
 char runFlag=0;
 int timerCount = 0;
 int value;
@@ -75,9 +85,17 @@ void setup(void) {
     BUTTON_TRIS = INPUT;
     MODE_SELECT_TRIS = INPUT;
     STATUS_LED = 0;
+    LED_GREEN_TRIS = OUTPUT;
+    LED_RED_TRIS = OUTPUT;
+    PROBE_TRIS = OUTPUT;
+
+    //Enable internal pullup resistor for port B
+    INTCON2bits.RBPU = CLEAR;
+    WPUB = 0b1111;
 
     //This is to toggle pins from digital to analog
     //unimp, RD3, RD2, RD1     RD1, AN10, AN9, AN8 (in order)
+    ANCON0 = 0b00000000;
     ANCON1 = 0b11111000;
 
     //NRF port configure (todo: move me)
@@ -112,6 +130,11 @@ void setup(void) {
     INTCONbits.TMR0IF = 0;
     INTCONbits.PEIE = 1;
     INTCONbits.GIE = 1;
+
+
+    //set up USB serial port
+    setupLCD();
+    RCSTA1bits.CREN = SET;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +143,23 @@ void setup(void) {
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 
+char readNext() {
+    while(!PIR1bits.RC1IF);
+    return readByte();
+}
+
+void readSerialIntoBuffer(char *buf) {
+    char len;
+    int index = 0;
+    
+    len = readNext();
+    while(len > 0) {
+        buf[index] = readNext();
+        index++;
+        len--;
+    }
+}
+
 void senderMain() {
     int fixweirdbehavior;
     unsigned char status;
@@ -127,41 +167,66 @@ void senderMain() {
     char mode;
     short offset;
 
-    OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_20_TAD, ADC_CH0 & ADC_INT_OFF, 0b0000);
+    //OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_20_TAD, ADC_CH0 & ADC_INT_OFF, 0b0000);
 
     nrf_init();
     delay();
 
-    initTX();
+    nrf_txmode();
     delay();
+
+    PIE1bits.RC1IE = SET; //enables peripheral interrupts for serial
+
+    INTCONbits.TMR0IE = 0;
+    INTCONbits.TMR0IF = 0;
+    INTCONbits.PEIE = 1;
+    INTCONbits.GIE = 1;
+
+    LED_RED = 0;
+    LED_GREEN = 0;
+    while(1) {
+        //while (!PIR1bits.RC1IF);
+        //LED_RED = 1;
+        //readSerialIntoBuffer(led_buffer);
+        //LED_RED = 0;
+        delay();
+        
+        sendStrip();
+        //STATUS_LED = 0;
+    }
 
     mode = 0;
 
     offset = 0;
+    //LED_GREEN = 0;
     while(1) {
-        if (BUTTON) {
-            mode = !mode;
-            while(BUTTON);
-            delay();
-        }
+        //LED_RED++;
 
-        //offset ++;
+        offset ++;
+        if (offset >= 125) offset = 0;
 
-        value = readPotentiometer();
-        value = value >> 4;
-        value = value >> 1;
-        if (value > 124) value = 124;
+        //value = readPotentiometer();
+        //value = value >> 4;
+        //value = value >> 1;
+        //if (value > 124) value = 124;
 
-        offset = value;
+        //offset = value;
         //if (value > offset) offset++;
         //if (value < offset) offset--;
 
-        if (mode) {
-            clearStrip(0,0,0);
-            setLED(offset,10,10,10);
-        } else {
-            writeSource(offset);
+//        if (mode) {
+//            clearStrip(0,0,0);
+//            setLED(offset,10,10,10);
+        //} else {
+        for (i = 0; i<125; i++) {
+            led_buffer[3*i] =   10*((i+offset) % 3 == 0);
+            led_buffer[3*i+1] = 10*((i+offset) % 3 == 1);
+            led_buffer[3*i+2] = 10*((i+offset) % 3 == 2);
         }
+        //writeSource(offset);
+        //}
+
+        //Delay10KTCYx(50);
         
         sendStrip();
     }
@@ -175,10 +240,26 @@ void updateSenderLCD() {
     sendIntDec(value);
 }
 
+char write_index = -1;
+char bytes_remaining = -1;
 void senderInterrupt(void) {
-    if (timerCount++ > 100) {
-        updateSenderLCD();
-        timerCount = 0;
+    char byte = RCREG1;
+
+    if (bytes_remaining == -1) {
+        bytes_remaining = byte;
+        return;
+    }
+    bytes_remaining--;
+    if (write_index == -1) {
+        write_index = 3*byte;
+        return;
+    }
+
+    led_buffer[write_index++] = byte;
+    
+    if (bytes_remaining == 0) {
+        bytes_remaining = -1;
+        write_index = -1;
     }
 }
 
@@ -256,7 +337,7 @@ void sendStrip() {
     for (i=0; i<14; i++) {
         loadFrame(i);
 
-        STATUS_LED = nrf_Send(&tx_buf, &rx_buf);
+        STATUS_LED = nrf_send(&tx_buf, &rx_buf);
     }
 }
 
@@ -277,19 +358,18 @@ void receiverMain() {
     nrf_init();
     delay();
 
-    initRX();
+    nrf_rxmode();
     delay();
 
     Delay10KTCYx(100);
 
     offset = 0;
+    STATUS_LED = 0;
     while(1) {
-        STATUS_LED = nrf_Recieve(&rx_buf);
+        //STATUS_LED = 
+        nrf_recieve(&rx_buf);
 
         updateBuffer();
-        //led_buffer[0] = 0;
-        //led_buffer[1] = 0;
-        //led_buffer[2] = 0;
         updateLEDs();
     }
 }
@@ -368,10 +448,12 @@ void delay(void) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void run(void) {
-    if (MODE_SELECT == MODE_SEND) {
-        senderMain();
-    } else {
-        receiverMain();
+    while(1) {
+        if (MODE_SELECT == MODE_SEND) {
+            senderMain();
+        } else {
+            receiverMain();
+        }
     }
 }
 
@@ -434,7 +516,7 @@ void updateLEDs() {
             BTFSS PIR1, 1, ACCESS //1, 2 or 3
             BRA timerWaitLoop2
 
-            BSF PORTB, 0, ACCESS ///////////////////////////////////////////////// SET
+            BSF PORTA, 0, ACCESS ///////////////////////////////////////////////// SET
 
             //clear timer overflow (timer trips again in 20 cycles)
             BCF PIR1, 1, ACCESS //1
@@ -445,7 +527,7 @@ void updateLEDs() {
             //NOP
 
         transmitZero:
-            BCF PORTB, 0, ACCESS ///////////////////////////////////////////////// CLEAR
+            BCF PORTA, 0, ACCESS ///////////////////////////////////////////////// CLEAR
 
             //Decrement current bit, jump if nonzero
             DECF RXB1D6, 1, ACCESS //1
@@ -480,7 +562,7 @@ void updateLEDs() {
             NOP
             NOP
 
-            BCF PORTB, 0, ACCESS ///////////////////////////////////////////////// CLEAR
+            BCF PORTA, 0, ACCESS ///////////////////////////////////////////////// CLEAR
 
             //Decrement current bit, jump if nonzero
             DECF RXB1D6, 1, ACCESS //1
@@ -511,7 +593,7 @@ void updateLEDs() {
         // sents a reset to the LED strip
         // a reset is a low for t > 50 microseconds
         asm_reset:
-            BCF PORTB, 0, ACCESS //1
+            BCF PORTA, 0, ACCESS //1
 
             MOVLW 135 //1
         loop:

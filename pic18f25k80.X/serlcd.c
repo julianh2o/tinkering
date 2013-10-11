@@ -39,8 +39,13 @@ void clear() {
 }
 
 void sendByte(unsigned char byte) {
-    TXREG1 = byte;
     while(!TXSTA1bits.TRMT) Nop();
+    TXREG1 = byte;
+}
+
+char readByte() {
+    if (!PIR1bits.RC1IF) return -1;
+    return RCREG1;
 }
 
 void sendVisibleByte(unsigned char byte) {

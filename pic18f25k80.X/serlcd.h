@@ -2,6 +2,7 @@
 
 void setupLCD(void);
 void sendByte(unsigned char byte);
+char readByte();
 void sendVisibleByte(unsigned char byte);
 
 void sendCommand(unsigned char byte);

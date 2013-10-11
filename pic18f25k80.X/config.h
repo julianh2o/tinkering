@@ -6,12 +6,12 @@
 // CONFIG1L
 #pragma config RETEN = OFF      // VREG Sleep Enable bit (Ultra low-power regulator is Disabled (Controlled by REGSLP bit))
 #pragma config INTOSCSEL = HIGH // LF-INTOSC Low-power Enable bit
-#pragma config SOSCSEL = DIG   // SOSC Power Selection and mode Configuration bits
-#pragma config XINST = OFF       // Extended Instruction Set
+#pragma config SOSCSEL = DIG    // SOSC Power Selection and mode Configuration bits
+#pragma config XINST = OFF      // Extended Instruction Set
 
 // CONFIG1H
 #pragma config FOSC = INTIO2    // Oscillator (Internal RC oscillator)
-#pragma config PLLCFG = ON     // PLL x4 Enable bit
+#pragma config PLLCFG = ON      // PLL x4 Enable bit
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor (Disabled)
 #pragma config IESO = OFF       // Internal External Oscillator Switch Over Mode (Disabled)
 
