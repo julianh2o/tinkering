@@ -6,25 +6,33 @@ import math
 def main():
     ser = serial.Serial(
         port='/dev/tty.usbserial-A7027BAL',
-        baudrate=9600
+        baudrate=115.2*1000
     )
 
-    clearStrip(ser);
-    time.sleep(1)
+    try:
+        clearStrip(ser);
 
-    data = []
-    for i in range(0,105):
-        h = i*(360.0/125.0)
-        print h
-        r, g, b = hsv2rgb(h,1,1)
-        print r,g,b
-        #r = 10 if i % 3 == 0 else 0
-        #g = 10 if i % 3 == 1 else 0
-        #b = 10 if i % 3 == 2 else 0
-        data += [g,r,b];
-    writeBytes(ser,0,data);
+        while(True):
+            clearStrip(ser);
+            time.sleep(1)
 
-    ser.close()             # close port
+            data = []
+            for i in range(0,105):
+                h = i*(360.0/125.0)
+                print h
+                r, g, b = hsv2rgb(h,1,1)
+                print r,g,b
+                r = 25 if i % 3 == 0 else 0
+                g = 25 if i % 3 == 1 else 0
+                b = 25 if i % 3 == 2 else 0
+                data += [g,r,b];
+            writeBytes(ser,0,data);
+
+        while(True):
+            writeBytes(ser,0,[0,0,0])
+            writeBytes(ser,0,[255,255,255])
+    except:
+        ser.close()             # close port
 
 
 

@@ -5,7 +5,6 @@
 #include "config.h"
 #include "nRF2401.h"
 #include "adc.h"
-#include "serlcd.h"
 #include <timers.h>
 #include <math.h>
 #include <delays.h>
@@ -133,7 +132,19 @@ void setup(void) {
 
 
     //set up USB serial port
-    setupLCD();
+    TRISCbits.TRISC6 = 1;
+    RCSTA1bits.SPEN = 1;
+    TXSTA1bits.TXEN = 1;
+
+    TXSTA1bits.SYNC = 0;
+    BAUDCON1bits.BRG16 = 0;
+    TXSTA1bits.BRGH = 1;
+
+    // 19.2kbaud = 001, 832
+    SPBRG1 = 34;
+    
+    //9.6kbaud = 000, 103
+    //SPBRG1 = 103;
     RCSTA1bits.CREN = SET;
 }
 
@@ -142,24 +153,6 @@ void setup(void) {
 ////                            Sender Code                                 ////
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
-
-char readNext() {
-    while(!PIR1bits.RC1IF);
-    return readByte();
-}
-
-void readSerialIntoBuffer(char *buf) {
-    char len;
-    int index = 0;
-    
-    len = readNext();
-    while(len > 0) {
-        buf[index] = readNext();
-        index++;
-        len--;
-    }
-}
-
 void senderMain() {
     int fixweirdbehavior;
     unsigned char status;
@@ -184,13 +177,18 @@ void senderMain() {
 
     LED_RED = 0;
     LED_GREEN = 0;
+    mode = 0;
     while(1) {
         //while (!PIR1bits.RC1IF);
         //LED_RED = 1;
         //readSerialIntoBuffer(led_buffer);
         //LED_RED = 0;
-        delay();
-        
+        //delay();
+
+        mode = !mode;
+        led_buffer[3] = mode ? 25 : 0;
+        led_buffer[4] = mode ? 25 : 0;
+        led_buffer[5] = mode ? 25 : 0;
         sendStrip();
         //STATUS_LED = 0;
     }
