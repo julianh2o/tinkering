@@ -4,7 +4,6 @@
 #include "constants.h"
 #include "config.h"
 #include "nRF2401.h"
-#include "adc.h"
 #include <timers.h>
 #include <math.h>
 #include <delays.h>
