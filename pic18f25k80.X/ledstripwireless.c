@@ -4,7 +4,6 @@
 #include "constants.h"
 #include "config.h"
 #include "nRF2401.h"
-#include "adc.h"
 #include <timers.h>
 #include <math.h>
 #include <delays.h>
@@ -36,6 +35,7 @@
 
 #pragma idata large_idata
 char led_buffer[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10,10,0,10,0,10,0,0,0,0,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//const char source[375] = {255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 const char source[375] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,2,15,0,2,15,0,3,15,0,4,15,0,5,15,0,5,15,0,6,15,0,7,15,0,8,15,0,8,15,0,9,15,0,10,15,0,11,15,0,11,15,0,12,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,13,0,15,12,0,15,11,0,15,10,0,15,9,0,15,9,0,15,8,0,15,7,0,15,6,0,15,6,0,15,5,0,15,4,0,15,3,0,15,3,0,15,2,0,15,1,0,15,0};
 #pragma idata
 
@@ -154,12 +154,13 @@ void setup(void) {
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 void senderMain() {
-    //master
     int fixweirdbehavior;
     unsigned char status;
     short i;
     char mode;
     short offset;
+
+    //OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_20_TAD, ADC_CH0 & ADC_INT_OFF, 0b0000);
 
     nrf_init();
     delay();
@@ -167,10 +168,71 @@ void senderMain() {
     nrf_txmode();
     delay();
 
+    PIE1bits.RC1IE = SET; //enables peripheral interrupts for serial
+
+    INTCONbits.TMR0IE = 0;
+    INTCONbits.TMR0IF = 0;
+    INTCONbits.PEIE = 1;
+    INTCONbits.GIE = 1;
+
+    LED_RED = 0;
+    LED_GREEN = 0;
+//    mode = 0;
+//    while(1) {
+//        //while (!PIR1bits.RC1IF);
+//        //LED_RED = 1;
+//        //readSerialIntoBuffer(led_buffer);
+//        //LED_RED = 0;
+//        //delay();
+//
+//        mode = !mode;
+//        led_buffer[3] = mode ? 25 : 0;
+//        led_buffer[4] = mode ? 25 : 0;
+//        led_buffer[5] = mode ? 25 : 0;
+//        sendStrip();
+//        //STATUS_LED = 0;
+//    }
+
+    mode = 0;
+
+    offset = 0;
+    //LED_GREEN = 0;
     while(1) {
-        delay();
-        updateLEDs();
+        //LED_RED++;
+
+        offset ++;
+        if (offset >= 125) offset = 0;
+
+        //value = readPotentiometer();
+        //value = value >> 4;
+        //value = value >> 1;
+        //if (value > 124) value = 124;
+
+        //offset = value;
+        //if (value > offset) offset++;
+        //if (value < offset) offset--;
+
+//        if (mode) {
+//            clearStrip(0,0,0);
+//            setLED(offset,10,10,10);
+        //} else {
+        for (i = 0; i<125; i++) {
+            led_buffer[3*i] =   10*((i+offset) % 3 == 0);
+            led_buffer[3*i+1] = 10*((i+offset) % 3 == 1);
+            led_buffer[3*i+2] = 10*((i+offset) % 3 == 2);
+        }
+        //åloadPayload
+        //writeSource(offset);
+        //}
+
+        //Delay10KTCYx(50);
+
+        sendStrip();
+        
+        //sendStrip();
     }
+
+    //CloseADC();
 }
 
 void updateSenderLCD() {
@@ -216,6 +278,74 @@ void writeSource(short offset) {
     }
 }
 
+void doCycle(void) {
+    short offset;
+
+    offset = 0;
+    while(1) {
+        writeSource(offset);
+        updateLEDs();
+        Delay10KTCYx(50);
+        offset++;
+        if (offset >= STRIP_LENGTH) offset = 0;
+    }
+}
+
+void doOscillate(void) {
+    short offset;
+    char dir = 1;
+
+    offset = 0;
+    while(1) {
+        writeSource(offset);
+        updateLEDs();
+        offset+= dir;
+        if (offset > STRIP_LENGTH) {
+            offset = STRIP_LENGTH;
+            dir = -1;
+        } else if (offset < 0) {
+            offset = 0;
+            dir = 1;
+        }
+    }
+}
+
+int readPotentiometer() {
+    ConvertADC();
+    while( BusyADC() );
+
+    return ReadADC(); // (0,4096)
+}
+
+#define FRAME_SIZE 9
+void loadFrame(char frame) {
+    loadPayload(frame*FRAME_SIZE,FRAME_SIZE*3);
+}
+
+void loadPayload(char location, char length) {
+    short i;
+    int n;
+    tx_buf[0] = location;
+    tx_buf[1] = length;
+    tx_buf[2] = 0;
+    tx_buf[3] = 0;
+    tx_buf[4] = 0;
+    for (i=0; i<length; i++) {
+        n = location*3+i;
+
+        tx_buf[5+i] = led_buffer[n];
+    }
+}
+
+void sendStrip() {
+    short i;
+    for (i=5; i<10; i++) {
+        loadFrame(i);
+
+        STATUS_LED = nrf_send(&tx_buf, &rx_buf);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////                                                                        ////
 ////                            Receiver Code                               ////
@@ -223,10 +353,12 @@ void writeSource(short offset) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void receiverMain() {
-    //slave
     int i;
     char offset;
     char status;
+
+    //doCycle();
+    //doOscillate();
 
     nrf_init();
     delay();
@@ -234,8 +366,16 @@ void receiverMain() {
     nrf_rxmode();
     delay();
 
+    Delay10KTCYx(100);
+
+    offset = 0;
+    STATUS_LED = 0;
     while(1) {
+        //STATUS_LED = 
         nrf_recieve(&rx_buf);
+
+        updateBuffer();
+        updateLEDs();
     }
 }
 
@@ -244,6 +384,23 @@ void receiverInterrupt() {
 //        STATUS_LED = !STATUS_LED;
 //        timerCount = 0;
 //    }
+}
+
+void updateBuffer() {
+    int loc = rx_buf[0];
+    int len = rx_buf[1];
+    int i;
+    int n;
+
+    //0,1,2,3,4 = (status info)
+    //0 = multiplier
+    //5-29 = data
+    for (i = 0; i<len; i++) {
+        n = loc*3+i;
+        if (n > DATA_SIZE) continue;
+
+        led_buffer[n] = rx_buf[5+i];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
