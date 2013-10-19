@@ -3,8 +3,8 @@
 #include "p18f25k80.h"
 #include "constants.h"
 #include "config.h"
+#include "serlcd.h"
 #include "nRF2401.h"
-#include "adc.h"
 #include <timers.h>
 #include <math.h>
 #include <delays.h>
@@ -36,7 +36,6 @@
 
 #pragma idata large_idata
 char led_buffer[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10,10,0,10,0,10,0,0,0,0,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-const char source[375] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,2,15,0,2,15,0,3,15,0,4,15,0,5,15,0,5,15,0,6,15,0,7,15,0,8,15,0,8,15,0,9,15,0,10,15,0,11,15,0,11,15,0,12,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,13,0,15,12,0,15,11,0,15,10,0,15,9,0,15,9,0,15,8,0,15,7,0,15,6,0,15,6,0,15,5,0,15,4,0,15,3,0,15,3,0,15,2,0,15,1,0,15,0};
 #pragma idata
 
 unsigned char tx_buf[MAX_PAYLOAD];
@@ -47,20 +46,13 @@ int value;
 
 void setup(void);
 
-////                            Sender Code                                 ////
-void senderMain(void);
-void senderInterrupt(void);
-void writeSource(short offset);
-void doCycle(void);
-void doOscillate(void);
-void loadFrame(char frame);
-void loadPayload(char location, char length);
-void sendStrip();
+////                            MasterCode                                 ////
+void masterMain(void);
+void masterInterrupt(void);
 
-////                          Receiver Code                                 ////
-void receiverMain(void);
-void receiverInterrupt(void);
-void updateBuffer();
+////                          SlaveCode                                 ////
+void slaveMain(void);
+void slaveInterrupt(void);
 
 ////                            Shared Code                                 ////
 void clearStrip(char r, char g, char b);
@@ -153,11 +145,15 @@ void setup(void) {
 ////                            Sender Code                                 ////
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
-void senderMain() {
+#define MAX_CLIENTS 10
+void masterMain() {
     //master
     int fixweirdbehavior;
     unsigned char status;
     short i;
+    short l;
+    short nextSlot;
+    int clients[MAX_CLIENTS];
     char mode;
     short offset;
 
@@ -167,53 +163,81 @@ void senderMain() {
     nrf_txmode();
     delay();
 
+    clearStrip(0,0,0);
+    
+    nextSlot = 0;
+    for (i=0; i<MAX_CLIENTS; i++) {
+        clients[i] = 0;
+    }
+
+    sendLiteralBytes("\nLoop Start\n");
+    LED_RED = 0;
+    LED_GREEN = 0;
+//    while(1) {
+//        LED_RED = !LED_RED;
+//        LED_GREEN = nrf_send(&tx_buf,&rx_buf);
+//        delay();
+//    }
     while(1) {
+        LED_RED = !LED_RED;
         delay();
+        
+        nrf_setTxAddr(0); //master channel
+        nrf_setRxAddr(0,0); //master channel
+        tx_buf[0] = 0x42;
+        tx_buf[1] = nextSlot+1;
+        //sendLiteralBytes("Attempt Send\n");
+        //displayStatus(nrf_getStatus());
+        if (nrf_send(&tx_buf,&rx_buf)) {
+            sendLiteralBytes("\nClient Connected!\n");
+
+            LED_RED = 1;
+            clients[nextSlot] = 1;
+
+            //find the next available slot
+            nextSlot = -1;
+            for (i=0; i<MAX_CLIENTS; i++) {
+                if (clients[i] == 0) {
+                    nextSlot = i;
+                    break;
+                }
+            }
+        }
+
+        for (i=0; i<MAX_CLIENTS; i++) {
+            if (clients[i] != 0) {
+                nrf_setTxAddr(i+1); //slave channel
+                nrf_setRxAddr(0,i+1); //slave channel
+                STATUS_LED = 0;
+                if (nrf_send(&tx_buf,&rx_buf)) {
+                    clients[i] = 1;
+                    led_buffer[3*i] = 5;
+                    led_buffer[3*i+1] = 5;
+                    led_buffer[3*i+2] = 5;
+                } else {
+                    clients[i]++;
+                    if (clients[i] > 3) {
+                        sendLiteralBytes("Client Disconnected!\n");
+                        clients[i] = 0;
+                        led_buffer[3*i] = 0;
+                        led_buffer[3*i+1] = 0;
+                        led_buffer[3*i+2] = 0;
+                    }
+                    for (l=0; l<MAX_CLIENTS; l++) {
+                        if (clients[l] == 0) {
+                            nextSlot = l;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         updateLEDs();
     }
 }
 
-void updateSenderLCD() {
-    setupLCD();
-    clear();
-    sendIntDec(value);
-}
+void masterInterrupt(void) {
 
-char write_index = -1;
-char bytes_remaining = -1;
-void senderInterrupt(void) {
-    char byte = RCREG1;
-
-    if (bytes_remaining == -1) {
-        bytes_remaining = byte;
-        return;
-    }
-    bytes_remaining--;
-    if (write_index == -1) {
-        write_index = 3*byte;
-        return;
-    }
-
-    led_buffer[write_index++] = byte;
-    
-    if (bytes_remaining == 0) {
-        bytes_remaining = -1;
-        write_index = -1;
-    }
-}
-
-void writeSource(short offset) {
-    short i,i_source;
-
-    i_source = offset;
-    for (i=0; i<STRIP_LENGTH; i++) {
-        led_buffer[i*3] = source[i_source*3];
-        led_buffer[i*3+1] = source[i_source*3+1];
-        led_buffer[i*3+2] = source[i_source*3+2];
-
-        i_source++;
-        if (i_source >= STRIP_LENGTH) i_source = 0;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +246,7 @@ void writeSource(short offset) {
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 
-void receiverMain() {
+void slaveMain() {
     //slave
     int i;
     char offset;
@@ -234,16 +258,27 @@ void receiverMain() {
     nrf_rxmode();
     delay();
 
+//    while(1) {
+//        LED_GREEN = nrf_receive(&tx_buf, &rx_buf);
+//    }
+
+    nrf_setTxAddr(0);
+    nrf_setRxAddr(0, 0);
+
+    rx_buf[0] = 0;
+    while(rx_buf[0] != 0x42) {
+        nrf_receive(&tx_buf, &rx_buf);
+    }
+    
+    nrf_setTxAddr(rx_buf[1]);
+    nrf_setRxAddr(0, rx_buf[1]);
     while(1) {
-        nrf_recieve(&rx_buf);
+        LED_GREEN = nrf_receive(&tx_buf, &rx_buf);
     }
 }
 
-void receiverInterrupt() {
-//    if (timerCount++ > 100) {
-//        STATUS_LED = !STATUS_LED;
-//        timerCount = 0;
-//    }
+void slaveInterrupt() {
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,23 +302,15 @@ void setLED(unsigned char n, char r, char g, char b) {
 }
 
 void displayStatus(char status) {
-    setPosition(0,0);
     sendLiteralBytes("stat:");
     sendBinPad(status);
-    fillLine();
+    sendLiteralBytes("\n");
     
-    if (runFlag == 0) {
-        setPosition(0,15);
-        sendLiteralBytes("_");
-    }
-    runFlag = !runFlag;
-    
-    setPosition(1,0);
     if (status & 0b1000000) sendLiteralBytes("DR ");
     if (status & 0b100000) sendLiteralBytes("DS ");
     if (status & 0b10000) sendLiteralBytes("RT ");
     if (status & 0b1) sendLiteralBytes("TXF ");
-    fill();
+    sendLiteralBytes("\n");
 }
 
 void delay(void) {
@@ -299,9 +326,9 @@ void delay(void) {
 void run(void) {
     while(1) {
         if (MODE_SELECT == MODE_SEND) {
-            senderMain();
+            masterMain();
         } else {
-            receiverMain();
+            slaveMain();
         }
     }
 }
@@ -324,9 +351,9 @@ void INT_AT_HIGH_VECTOR(void) {
 #pragma interrupt HIGH_ISR
 void HIGH_ISR(void) {
     if (MODE_SELECT == MODE_SEND) {
-        senderInterrupt();
+        masterInterrupt();
     } else {
-        receiverInterrupt();
+        slaveInterrupt();
     }
 
     INTCONbits.TMR0IF = CLEAR;

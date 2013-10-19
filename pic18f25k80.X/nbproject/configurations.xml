@@ -17,8 +17,8 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>nRF2401.c</itemPath>
-      <itemPath>ledstripwireless.c</itemPath>
       <itemPath>serlcd.c</itemPath>
+      <itemPath>multipoint.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -133,7 +133,7 @@
         <property key="programoptions.testmodeentrymethod" value="VPPFirst"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="programoptions.uselvpprogramming" value="false"/>
-        <property key="voltagevalue" value="3.25"/>
+        <property key="voltagevalue" value="5.0"/>
       </PICkit3PlatformTool>
       <item path="config.h" ex="true" overriding="false">
         <C18>

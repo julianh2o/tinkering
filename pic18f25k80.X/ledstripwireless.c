@@ -372,7 +372,7 @@ void receiverMain() {
     STATUS_LED = 0;
     while(1) {
         //STATUS_LED = 
-        nrf_recieve(&rx_buf);
+        nrf_receive(&rx_buf);
 
         updateBuffer();
         updateLEDs();

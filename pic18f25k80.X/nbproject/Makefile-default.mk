@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=nRF2401.c ledstripwireless.c serlcd.c
+SOURCEFILES_QUOTED_IF_SPACED=nRF2401.c serlcd.c multipoint.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/nRF2401.o ${OBJECTDIR}/ledstripwireless.o ${OBJECTDIR}/serlcd.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/nRF2401.o.d ${OBJECTDIR}/ledstripwireless.o.d ${OBJECTDIR}/serlcd.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/nRF2401.o ${OBJECTDIR}/serlcd.o ${OBJECTDIR}/multipoint.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/nRF2401.o.d ${OBJECTDIR}/serlcd.o.d ${OBJECTDIR}/multipoint.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/nRF2401.o ${OBJECTDIR}/ledstripwireless.o ${OBJECTDIR}/serlcd.o
+OBJECTFILES=${OBJECTDIR}/nRF2401.o ${OBJECTDIR}/serlcd.o ${OBJECTDIR}/multipoint.o
 
 # Source Files
-SOURCEFILES=nRF2401.c ledstripwireless.c serlcd.c
+SOURCEFILES=nRF2401.c serlcd.c multipoint.c
 
 
 CFLAGS=
@@ -93,19 +93,19 @@ ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
 	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
-${OBJECTDIR}/ledstripwireless.o: ledstripwireless.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/ledstripwireless.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledstripwireless.o   ledstripwireless.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/ledstripwireless.o 
-	@${FIXDEPS} "${OBJECTDIR}/ledstripwireless.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
-	
 ${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/serlcd.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
 	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/multipoint.o: multipoint.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/multipoint.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/multipoint.o   multipoint.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/multipoint.o 
+	@${FIXDEPS} "${OBJECTDIR}/multipoint.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 else
 ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
@@ -115,19 +115,19 @@ ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
 	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
-${OBJECTDIR}/ledstripwireless.o: ledstripwireless.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/ledstripwireless.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/ledstripwireless.o   ledstripwireless.c 
-	@${DEP_GEN} -d ${OBJECTDIR}/ledstripwireless.o 
-	@${FIXDEPS} "${OBJECTDIR}/ledstripwireless.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
-	
 ${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/serlcd.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
 	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
+	
+${OBJECTDIR}/multipoint.o: multipoint.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/multipoint.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/multipoint.o   multipoint.c 
+	@${DEP_GEN} -d ${OBJECTDIR}/multipoint.o 
+	@${FIXDEPS} "${OBJECTDIR}/multipoint.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
 	
 endif
 
