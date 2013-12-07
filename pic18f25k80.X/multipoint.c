@@ -9,27 +9,25 @@
 #include <math.h>
 #include <delays.h>
 
-#define LED_GREEN_TRIS TRISBbits.TRISB4
-#define LED_GREEN PORTBbits.RB4
+#define LED_RED_TRIS      TRISAbits.TRISA0
+#define LED_RED           PORTAbits.RA0
 
-#define LED_RED_TRIS TRISBbits.TRISB5
-#define LED_RED PORTBbits.RB5
+#define LED_GREEN_TRIS    TRISAbits.TRISA1
+#define LED_GREEN         PORTAbits.RA1
 
-#define STRIP_DATA_TRIS TRISAbits.TRISA0
-#define STRIP_DATA PORTAbits.RA0
+#define LED_YELLOW_TRIS   TRISAbits.TRISA2
+#define LED_YELLOW        PORTAbits.RA2
 
-#define PROBE_TRIS TRISAbits.TRISA1
-#define PROBE PORTAbits.RA1
+#define EEPROM_CS_TRIS    TRISBbits.TRISB3
+#define EEPROM_CS         PORTBbits.RB3
 
-#define STATUS_TRIS TRISBbits.TRISB4
-#define STATUS_LED PORTBbits.RB4
+#define LED_ON            0
+#define LED_OFF           1
 
-#define BUTTON_TRIS TRISBbits.TRISB1
-#define BUTTON PORTBbits.RB1
 
-#define MODE_SELECT_TRIS TRISBbits.TRISB0
-#define MODE_SELECT PORTBbits.RB0
-#define MODE_SEND 1
+#define STRIP_TRIS TRISCbits.TRISC2
+#define STRIP PORTCbits.RC2
+
 
 #define STRIP_LENGTH 125
 #define DATA_SIZE 375
@@ -71,14 +69,14 @@ extern void updateLEDs(void);
 
 void setup(void) {
     //Misc config
-    STRIP_DATA_TRIS = OUTPUT;
-    STATUS_TRIS = OUTPUT;
-    BUTTON_TRIS = INPUT;
-    MODE_SELECT_TRIS = INPUT;
-    STATUS_LED = 0;
-    LED_GREEN_TRIS = OUTPUT;
     LED_RED_TRIS = OUTPUT;
-    PROBE_TRIS = OUTPUT;
+    LED_GREEN_TRIS = OUTPUT;
+    LED_YELLOW_TRIS = OUTPUT;
+    EEPROM_CS_TRIS = OUTPUT;
+    STRIP_TRIS = OUTPUT;
+
+
+
 
     //Enable internal pullup resistor for port B
     INTCON2bits.RBPU = CLEAR;
@@ -258,6 +256,12 @@ void slaveMain() {
     nrf_rxmode();
     delay();
 
+    while(1) {
+        LED_YELLOW++;
+        LED_GREEN = !LED_YELLOW;
+        delay();
+    }
+
 //    while(1) {
 //        LED_GREEN = nrf_receive(&tx_buf, &rx_buf);
 //    }
@@ -325,11 +329,11 @@ void delay(void) {
 
 void run(void) {
     while(1) {
-        if (MODE_SELECT == MODE_SEND) {
-            masterMain();
-        } else {
-            slaveMain();
-        }
+        //if (MODE_SELECT == MODE_SEND) {
+        //    masterMain();
+        //} else {
+        slaveMain();
+        //}
     }
 }
 
@@ -392,7 +396,7 @@ void updateLEDs() {
             BTFSS PIR1, 1, ACCESS //1, 2 or 3
             BRA timerWaitLoop2
 
-            BSF PORTA, 0, ACCESS ///////////////////////////////////////////////// SET
+            BSF PORTC, 2, ACCESS ///////////////////////////////////////////////// SET
 
             //clear timer overflow (timer trips again in 20 cycles)
             BCF PIR1, 1, ACCESS //1
@@ -403,7 +407,7 @@ void updateLEDs() {
             //NOP
 
         transmitZero:
-            BCF PORTA, 0, ACCESS ///////////////////////////////////////////////// CLEAR
+            BCF PORTC, 2, ACCESS ///////////////////////////////////////////////// CLEAR
 
             //Decrement current bit, jump if nonzero
             DECF RXB1D6, 1, ACCESS //1
@@ -438,7 +442,7 @@ void updateLEDs() {
             NOP
             NOP
 
-            BCF PORTA, 0, ACCESS ///////////////////////////////////////////////// CLEAR
+            BCF PORTC, 2, ACCESS ///////////////////////////////////////////////// CLEAR
 
             //Decrement current bit, jump if nonzero
             DECF RXB1D6, 1, ACCESS //1
@@ -469,7 +473,7 @@ void updateLEDs() {
         // sents a reset to the LED strip
         // a reset is a low for t > 50 microseconds
         asm_reset:
-            BCF PORTA, 0, ACCESS //1
+            BCF PORTC, 2, ACCESS /////////////////////////////////////////////////////
 
             MOVLW 135 //1
         loop:

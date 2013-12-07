@@ -1,4 +1,3 @@
-#include <p18F25K80.h>
 #include "serlcd.h"
 
 char charactersSinceFill = 0;
@@ -137,7 +136,10 @@ void fill(void) {
 
 void fillLine(void) {
     char i = 16-charactersSinceFill-1;
-    if (charactersSinceFill >= 16) return fill();
+    if (charactersSinceFill >= 16) {
+        fill();
+        return;
+    }
 
     while(i-- >= 0) {
         sendLiteralBytes(" ");

@@ -1,7 +1,7 @@
 
 // PIC18F25K80 Configuration Bit Settings
 
-#include <p18F25K80.h>
+#include "p18f25k80.h"
 
 // CONFIG1L
 #pragma config RETEN = OFF      // VREG Sleep Enable bit (Ultra low-power regulator is Disabled (Controlled by REGSLP bit))

@@ -89,6 +89,7 @@ ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/nRF2401.o.d 
+	@${RM} ${OBJECTDIR}/nRF2401.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/nRF2401.o   nRF2401.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
 	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
@@ -96,6 +97,7 @@ ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 ${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/serlcd.o.d 
+	@${RM} ${OBJECTDIR}/serlcd.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
 	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
@@ -103,6 +105,7 @@ ${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
 ${OBJECTDIR}/multipoint.o: multipoint.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/multipoint.o.d 
+	@${RM} ${OBJECTDIR}/multipoint.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1 -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/multipoint.o   multipoint.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/multipoint.o 
 	@${FIXDEPS} "${OBJECTDIR}/multipoint.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
@@ -111,6 +114,7 @@ else
 ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/nRF2401.o.d 
+	@${RM} ${OBJECTDIR}/nRF2401.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/nRF2401.o   nRF2401.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/nRF2401.o 
 	@${FIXDEPS} "${OBJECTDIR}/nRF2401.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
@@ -118,6 +122,7 @@ ${OBJECTDIR}/nRF2401.o: nRF2401.c  nbproject/Makefile-${CND_CONF}.mk
 ${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/serlcd.o.d 
+	@${RM} ${OBJECTDIR}/serlcd.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/serlcd.o   serlcd.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/serlcd.o 
 	@${FIXDEPS} "${OBJECTDIR}/serlcd.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
@@ -125,6 +130,7 @@ ${OBJECTDIR}/serlcd.o: serlcd.c  nbproject/Makefile-${CND_CONF}.mk
 ${OBJECTDIR}/multipoint.o: multipoint.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/multipoint.o.d 
+	@${RM} ${OBJECTDIR}/multipoint.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE) -p$(MP_PROCESSOR_OPTION) -ms -oa-  -I ${MP_CC_DIR}/../h  -fo ${OBJECTDIR}/multipoint.o   multipoint.c 
 	@${DEP_GEN} -d ${OBJECTDIR}/multipoint.o 
 	@${FIXDEPS} "${OBJECTDIR}/multipoint.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c18 
