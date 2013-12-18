@@ -21,6 +21,11 @@
 #define EEPROM_CS_TRIS    TRISBbits.TRISB3
 #define EEPROM_CS         PORTBbits.RB3
 
+#define BUTTON_TRIS       TRISBbits.TRISB4
+#define BUTTON            PORTBbits.RB4
+#define BUTTON_DOWN       0
+#define BUTTON_UP         1
+
 #define LED_ON            0
 #define LED_OFF           1
 
@@ -32,6 +37,8 @@
 
 #pragma idata large_idata
 char led_buffer[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10,10,0,10,0,10,0,0,0,0,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+char rainbow[DATA_SIZE] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,2,15,0,2,15,0,3,15,0,4,15,0,5,15,0,5,15,0,6,15,0,7,15,0,8,15,0,8,15,0,9,15,0,10,15,0,11,15,0,11,15,0,12,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,13,0,15,12,0,15,11,0,15,10,0,15,9,0,15,9,0,15,8,0,15,7,0,15,6,0,15,6,0,15,5,0,15,4,0,15,3,0,15,3,0,15,2,0,15,1,0,15,0};
+char other[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10,10,0,10,0,10,0,0,0,0,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #pragma idata
 
 unsigned char tx_buf[MAX_PAYLOAD];
@@ -48,6 +55,7 @@ void masterInterrupt(void);
 
 ////                          SlaveCode                                 ////
 void slaveMain(void);
+void writeSource(char * source, short offset);
 void slaveInterrupt(void);
 
 ////                            Shared Code                                 ////
@@ -72,15 +80,19 @@ void setup(void) {
     LED_YELLOW_TRIS = OUTPUT;
     EEPROM_CS_TRIS = OUTPUT;
     STRIP_TRIS = OUTPUT;
+    BUTTON_TRIS = INPUT;
+
 
     //oscillator setup
     OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
     OSCCONbits.SCS = 0b00;
     OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
 
+
+
     //Enable internal pullup resistor for port B
     INTCON2bits.RBPU = CLEAR;
-    WPUB = 0b1111;
+    WPUB = 0b11111111;
 
     //This is to toggle pins from digital to analog
     //unimp, RD3, RD2, RD1     RD1, AN10, AN9, AN8 (in order)
@@ -114,7 +126,7 @@ void setup(void) {
     //Set up timer0 interrupts
     INTCONbits.TMR0IE = 1;
     INTCONbits.TMR0IF = 0;
-    INTCONbits.PEIE = 1;
+    INTCONbits.PEIE = 0;
     INTCONbits.GIE = 0;
 
 
@@ -135,7 +147,7 @@ void setup(void) {
     RCSTA1bits.CREN = SET;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 ////                                                                        ////
 ////                            Sender Code                                 ////
 ////                                                                        ////
@@ -184,6 +196,8 @@ void slaveMain() {
 
     offset = 0;
     while(1) {
+        LED_RED = BUTTON;
+        
         lastData++;
         LED_GREEN = LED_OFF;
 
@@ -193,18 +207,63 @@ void slaveMain() {
             LED_GREEN = LED_ON;
             lastData = 0;
             automatic = 0;
+            LED_YELLOW = 0;
         }
 
-        if (lastData > 500) {
+        if (lastData > 500 && automatic == 0) {
             automatic = 1;
+            LED_YELLOW = 1;
         }
 
         if (automatic) {
+            if (BUTTON == BUTTON_DOWN) {
+                while(BUTTON == BUTTON_DOWN);
+                automatic++;
+                if (automatic > 3) automatic = 1;
+            }
+
             offset++;
-            
+            if (offset >= 125) offset = 0;
+
+            switch(automatic) {
+                case 1:
+                    writeSource(&rainbow,offset);
+                break;
+                
+                case 2:
+                    for (i=0; i<375; i++) {
+                        led_buffer[i] = 10;
+                    }
+                    //writeSource(&other,offset);
+                break;
+
+                case 3:
+                    for (i=0; i<375; i++) {
+                        led_buffer[i] = offset;
+                    }
+                    //writeSource(&other,offset);
+                break;
+            }
+            updateLEDs();
+            Delay10KTCYx(50);
         }
     }
 }
+
+void writeSource(char * source, short offset) {
+    short i,i_source;
+
+    i_source = offset;
+    for (i=0; i<STRIP_LENGTH; i++) {
+        led_buffer[i*3] = source[i_source*3];
+        led_buffer[i*3+1] = source[i_source*3+1];
+        led_buffer[i*3+2] = source[i_source*3+2];
+
+        i_source++;
+        if (i_source >= STRIP_LENGTH) i_source = 0;
+    }
+}
+
 
 void slaveInterrupt() {
 
