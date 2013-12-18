@@ -24,10 +24,8 @@
 #define LED_ON            0
 #define LED_OFF           1
 
-
-#define STRIP_TRIS TRISCbits.TRISC2
-#define STRIP PORTCbits.RC2
-
+#define STRIP_TRIS        TRISCbits.TRISC2
+#define STRIP             PORTCbits.RC2
 
 #define STRIP_LENGTH 125
 #define DATA_SIZE 375
@@ -65,7 +63,7 @@ void INT_AT_HIGH_VECTOR(void);
 void HIGH_ISR(void);
 
 ////                            LED Code                                    ////
-extern void updateLEDs(void);
+void updateLEDs(void);
 
 void setup(void) {
     //Misc config
@@ -75,8 +73,10 @@ void setup(void) {
     EEPROM_CS_TRIS = OUTPUT;
     STRIP_TRIS = OUTPUT;
 
-
-
+    //oscillator setup
+    OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
+    OSCCONbits.SCS = 0b00;
+    OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
 
     //Enable internal pullup resistor for port B
     INTCON2bits.RBPU = CLEAR;
@@ -84,8 +84,10 @@ void setup(void) {
 
     //This is to toggle pins from digital to analog
     //unimp, RD3, RD2, RD1     RD1, AN10, AN9, AN8 (in order)
-    ANCON0 = 0b00000000;
-    ANCON1 = 0b11111000;
+    //ANCON0 = 0b00000000;
+    //ANCON1 = 0b11111000;
+    ANCON0 = 0x00;
+    ANCON1 = 0x00;
 
     //NRF port configure (todo: move me)
     TRIS_CE = OUTPUT;
@@ -94,11 +96,6 @@ void setup(void) {
     TRIS_SCK = OUTPUT;
     TRIS_MISO = INPUT;
     TRIS_MOSI = OUTPUT;
-
-    //oscillator setup
-    OSCCONbits.IRCF = 0b111; //sets internal osc to 111=16mhz, 110=8mhz
-    OSCCONbits.SCS = 0b00;
-    OSCTUNEbits.PLLEN = 0b1; //1=pllx4 enabled
 
     //set up timer for LEDs
     T2CONbits.TMR2ON = 1; //enable timer 2
@@ -118,7 +115,7 @@ void setup(void) {
     INTCONbits.TMR0IE = 1;
     INTCONbits.TMR0IF = 0;
     INTCONbits.PEIE = 1;
-    INTCONbits.GIE = 1;
+    INTCONbits.GIE = 0;
 
 
     //set up USB serial port
@@ -143,95 +140,8 @@ void setup(void) {
 ////                            Sender Code                                 ////
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
-#define MAX_CLIENTS 10
 void masterMain() {
-    //master
-    int fixweirdbehavior;
-    unsigned char status;
-    short i;
-    short l;
-    short nextSlot;
-    int clients[MAX_CLIENTS];
-    char mode;
-    short offset;
 
-    nrf_init();
-    delay();
-
-    nrf_txmode();
-    delay();
-
-    clearStrip(0,0,0);
-    
-    nextSlot = 0;
-    for (i=0; i<MAX_CLIENTS; i++) {
-        clients[i] = 0;
-    }
-
-    sendLiteralBytes("\nLoop Start\n");
-    LED_RED = 0;
-    LED_GREEN = 0;
-//    while(1) {
-//        LED_RED = !LED_RED;
-//        LED_GREEN = nrf_send(&tx_buf,&rx_buf);
-//        delay();
-//    }
-    while(1) {
-        LED_RED = !LED_RED;
-        delay();
-        
-        nrf_setTxAddr(0); //master channel
-        nrf_setRxAddr(0,0); //master channel
-        tx_buf[0] = 0x42;
-        tx_buf[1] = nextSlot+1;
-        //sendLiteralBytes("Attempt Send\n");
-        //displayStatus(nrf_getStatus());
-        if (nrf_send(&tx_buf,&rx_buf)) {
-            sendLiteralBytes("\nClient Connected!\n");
-
-            LED_RED = 1;
-            clients[nextSlot] = 1;
-
-            //find the next available slot
-            nextSlot = -1;
-            for (i=0; i<MAX_CLIENTS; i++) {
-                if (clients[i] == 0) {
-                    nextSlot = i;
-                    break;
-                }
-            }
-        }
-
-        for (i=0; i<MAX_CLIENTS; i++) {
-            if (clients[i] != 0) {
-                nrf_setTxAddr(i+1); //slave channel
-                nrf_setRxAddr(0,i+1); //slave channel
-                STATUS_LED = 0;
-                if (nrf_send(&tx_buf,&rx_buf)) {
-                    clients[i] = 1;
-                    led_buffer[3*i] = 5;
-                    led_buffer[3*i+1] = 5;
-                    led_buffer[3*i+2] = 5;
-                } else {
-                    clients[i]++;
-                    if (clients[i] > 3) {
-                        sendLiteralBytes("Client Disconnected!\n");
-                        clients[i] = 0;
-                        led_buffer[3*i] = 0;
-                        led_buffer[3*i+1] = 0;
-                        led_buffer[3*i+2] = 0;
-                    }
-                    for (l=0; l<MAX_CLIENTS; l++) {
-                        if (clients[l] == 0) {
-                            nextSlot = l;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        updateLEDs();
-    }
 }
 
 void masterInterrupt(void) {
@@ -244,11 +154,27 @@ void masterInterrupt(void) {
 ////                                                                        ////
 ////////////////////////////////////////////////////////////////////////////////
 
+void processPacket(char * buf) {
+    int loc = buf[0];
+    int len = buf[1];
+    int i;
+    int n;
+
+    for (i = 0; i<len; i++) {
+        n = loc*3+i;
+        if (n > DATA_SIZE) continue;
+
+        led_buffer[n] = buf[2+i];
+    }
+}
+
 void slaveMain() {
     //slave
     int i;
     char offset;
     char status;
+    char automatic = 0;
+    int lastData;
 
     nrf_init();
     delay();
@@ -256,28 +182,27 @@ void slaveMain() {
     nrf_rxmode();
     delay();
 
+    offset = 0;
     while(1) {
-        LED_YELLOW++;
-        LED_GREEN = !LED_YELLOW;
-        delay();
-    }
+        lastData++;
+        LED_GREEN = LED_OFF;
 
-//    while(1) {
-//        LED_GREEN = nrf_receive(&tx_buf, &rx_buf);
-//    }
+        if (nrf_receive(&tx_buf,&rx_buf)) {
+            processPacket(&rx_buf);
+            updateLEDs();
+            LED_GREEN = LED_ON;
+            lastData = 0;
+            automatic = 0;
+        }
 
-    nrf_setTxAddr(0);
-    nrf_setRxAddr(0, 0);
+        if (lastData > 500) {
+            automatic = 1;
+        }
 
-    rx_buf[0] = 0;
-    while(rx_buf[0] != 0x42) {
-        nrf_receive(&tx_buf, &rx_buf);
-    }
-    
-    nrf_setTxAddr(rx_buf[1]);
-    nrf_setRxAddr(0, rx_buf[1]);
-    while(1) {
-        LED_GREEN = nrf_receive(&tx_buf, &rx_buf);
+        if (automatic) {
+            offset++;
+            
+        }
     }
 }
 
@@ -354,11 +279,7 @@ void INT_AT_HIGH_VECTOR(void) {
 //====== high interrupt service routine =======================================
 #pragma interrupt HIGH_ISR
 void HIGH_ISR(void) {
-    if (MODE_SELECT == MODE_SEND) {
-        masterInterrupt();
-    } else {
-        slaveInterrupt();
-    }
+    slaveInterrupt();
 
     INTCONbits.TMR0IF = CLEAR;
 }
@@ -404,6 +325,7 @@ void updateLEDs() {
             //bit shift and set carry flag
             RLCF RXB1D7, 1, 0 //1
             BC transmitOne //1 or 2
+            //BC transmitOne
             //NOP
 
         transmitZero:

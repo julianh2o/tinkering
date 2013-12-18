@@ -5,8 +5,8 @@
 #define TRIS_CE		TRISBbits.TRISB1
 #define CSN             PORTBbits.RB0
 #define TRIS_CSN	TRISBbits.TRISB0
-#define IRQ		PORTCbits.RC2
-#define TRIS_IRQ	TRISCbits.TRISC2
+#define IRQ		PORTBbits.RB2
+#define TRIS_IRQ	TRISBbits.TRISB2
 
 #define TRIS_SCK	TRISCbits.TRISC3
 #define TRIS_MISO	TRISCbits.TRISC4
