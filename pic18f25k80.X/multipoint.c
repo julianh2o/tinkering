@@ -37,7 +37,7 @@
 
 #pragma idata large_idata
 char led_buffer[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10,10,0,10,0,10,0,0,0,0,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-char rainbow[DATA_SIZE] = {0,15,0,0,15,0,1,15,0,2,15,0,3,15,0,3,15,0,4,15,0,5,15,0,6,15,0,6,15,0,7,15,0,8,15,0,9,15,0,9,15,0,10,15,0,11,15,0,12,15,0,13,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,12,0,15,11,0,15,11,0,15,10,0,15,9,0,15,8,0,15,8,0,15,7,0,15,6,0,15,5,0,15,5,0,15,4,0,15,3,0,15,2,0,15,2,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,1,15,0,2,15,0,3,15,0,4,15,0,4,15,0,5,15,0,6,15,0,7,15,0,7,15,0,8,15,0,9,15,0,10,15,0,10,15,0,11,15,0,12,15,0,13,15,0,14,15,0,14,15,0,15,15,0,15,14,0,15,14,0,15,13,0,15,12,0,15,11,0,15,10,0,15,10,0,15,9,0,15,8,0,15,7,0,15,7,0,15,6,0,15,5,0,15,4,0,15,4,0,15,3,0,15,2,0,15,1,0,15,1,0,15,0,0,15,0,0,15,0,1,15,0,2,15,0,2,15,0,3,15,0,4,15,0,5,15,0,5,15,0,6,15,0,7,15,0,8,15,0,8,15,0,9,15,0,10,15,0,11,15,0,11,15,0,12,15,0,13,15,0,14,15,0,15,15,0,15,15,0,15,15,0,15,14,0,15,13,0,15,13,0,15,12,0,15,11,0,15,10,0,15,9,0,15,9,0,15,8,0,15,7,0,15,6,0,15,6,0,15,5,0,15,4,0,15,3,0,15,3,0,15,2,0,15,1,0,15,0};
+char rainbow[DATA_SIZE] = {0,255,0,12,255,0,24,255,0,36,255,0,48,255,0,61,255,0,73,255,0,85,255,0,97,255,0,110,255,0,122,255,0,134,255,0,146,255,0,159,255,0,171,255,0,183,255,0,195,255,0,208,255,0,220,255,0,232,255,0,244,255,0,255,252,0,255,240,0,255,228,0,255,216,0,255,204,0,255,191,0,255,179,0,255,167,0,255,155,0,255,142,0,255,130,0,255,118,0,255,106,0,255,93,0,255,81,0,255,69,0,255,57,0,255,44,0,255,32,0,255,20,0,255,8,0,255,0,4,255,0,16,255,0,28,255,0,40,255,0,53,255,0,65,255,0,77,255,0,89,255,0,101,255,0,114,255,0,126,255,0,138,255,0,150,255,0,163,255,0,175,255,0,187,255,0,199,255,0,212,255,0,224,255,0,236,255,0,248,248,0,255,236,0,255,224,0,255,212,0,255,199,0,255,187,0,255,175,0,255,163,0,255,150,0,255,138,0,255,126,0,255,114,0,255,101,0,255,89,0,255,77,0,255,65,0,255,53,0,255,40,0,255,28,0,255,16,0,255,4,0,255,0,8,255,0,20,255,0,32,255,0,44,255,0,57,255,0,69,255,0,81,255,0,93,255,0,106,255,0,118,255,0,130,255,0,142,255,0,155,255,0,167,255,0,179,255,0,191,255,0,203,255,0,216,255,0,228,255,0,240,255,0,252,255,0,255,244,0,255,232,0,255,220,0,255,208,0,255,195,0,255,183,0,255,171,0,255,159,0,255,146,0,255,134,0,255,122,0,255,110,0,255,97,0,255,85,0,255,73,0,255,61,0,255,48,0,255,36,0,255,24,0,255,12};
 char other[375] = {10,0,0,0,10,0,0,0,10,10,10,10,0,0,10,0,10,0,10,0,0,10,10,10,0,10,0,10,0,0,0,0,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #pragma idata
 
@@ -180,13 +180,141 @@ void processPacket(char * buf) {
     }
 }
 
+void colorFlash(char r, char g, char b) {
+    clearStrip(r,g,b);
+    updateLEDs();
+    Delay10KTCYx(100);
+    clearStrip(0,0,0);
+    updateLEDs();
+    Delay10KTCYx(25);
+    clearStrip(r,g,b);
+    updateLEDs();
+    Delay10KTCYx(100);
+    clearStrip(0,0,0);
+    updateLEDs();
+}
+
+void confirmFlash() {
+    colorFlash(0,100,0);
+}
+
+void alertFlash() {
+    colorFlash(100,0,0);
+}
+
+char detectButton() {
+    int i=0;
+    int LONG_PRESS = 500;
+
+    while(BUTTON == BUTTON_DOWN) {
+        i++;
+        if (i > LONG_PRESS) return 2;
+        Delay10KTCYx(1);
+    }
+    if (i > 0) return 1;
+    return 0;
+}
+
+char interpolateColor(unsigned char a, unsigned char b, int current, int total) {
+    int ret;
+    int ai;
+    int bi;
+    ai = 0+a;
+    bi = 0+b;
+//    sendLiteralBytes("a: ");
+//    sendIntDec(ai);
+//    sendLiteralBytes("\n");
+//    sendLiteralBytes("b: ");
+//    sendIntDec(bi);
+//    sendLiteralBytes("\n");
+//
+//    sendLiteralBytes("aa: ");
+//    sendDec(a);
+//    sendLiteralBytes("\n");
+//    sendLiteralBytes("bb: ");
+//    sendDec(b);
+//    sendLiteralBytes("\n");
+    ret = bi-ai;
+//    sendLiteralBytes("diff: ");
+//    sendIntDec(ret);
+//    sendLiteralBytes("\n");
+    ret *= current;
+//    sendLiteralBytes("muld: ");
+//    sendIntDec(ret);
+//    sendLiteralBytes("\n");
+    ret /= total;
+//    sendLiteralBytes("total: ");
+//    sendIntDec(total);
+//    sendLiteralBytes("\n");
+//    sendLiteralBytes("divd: ");
+//    sendIntDec(ret);
+//    sendLiteralBytes("\n");
+    ret += ((int)ai);
+//    sendLiteralBytes("final: ");
+//    sendIntDec(ret);
+//    sendLiteralBytes("\n");
+    return ret;
+}
+
+#define FIRE_LENGTH 12
+//char fire[12] = {231,57,0,231,140,0,231,225,0,255,255,158};
+char fire[12] = {231,57,0,231,140,0,231,225,0,231,57,0};
+//char fire[12] = {254,0,0,0,0,254,0,254,0,254,254,254};
+void doFire(char offset, char total) {
+    int i1;
+    int i2;
+    unsigned char colors;
+    unsigned char unitsPerColor;
+    unsigned char currentSection;
+    unsigned char currentCompletion;
+    unsigned char r,g,b;
+
+//    if (offset > 100) {
+//        offset = 10;
+//    } else {
+//        offset = 0;
+//    }
+
+    colors = FIRE_LENGTH / 3; //4
+    unitsPerColor = total/(colors-1);
+    currentSection = offset/unitsPerColor;
+    currentCompletion = offset % unitsPerColor;
+    i1 = currentSection*3;
+    i2 = (currentSection+1)*3;
+//    sendLiteralBytes("NEW FRAME\n\n\n");
+    r = interpolateColor(fire[i1],fire[i2], currentCompletion, unitsPerColor);
+    g = interpolateColor(fire[i1+1],fire[i2+1], currentCompletion, unitsPerColor);
+    b = interpolateColor(fire[i1+2],fire[i2+2], currentCompletion, unitsPerColor);
+
+//    sendLiteralBytes("rgb: ");
+//    sendIntDec(r);
+//    sendLiteralBytes(" ");
+//    sendIntDec(g);
+//    sendLiteralBytes(" ");
+//    sendIntDec(b);
+//    sendLiteralBytes("\n");
+//    r = fire[i2];
+//    g = fire[i2+1];
+//    b = fire[i2+2];
+    //231,57,0
+    //231,140,0
+    //231,225,0
+    //255,255,158
+    clearStrip(r,g,b);
+//    clearStrip(0,0,0);
+//    setLED(currentCompletion,10,10,10);
+//    setLED(2,r,g,b);
+}
+
 void slaveMain() {
     //slave
     int i;
     char offset;
+    char speed;
     char status;
     char automatic = 0;
     int lastData;
+    char button;
 
     nrf_init();
     delay();
@@ -195,6 +323,9 @@ void slaveMain() {
     delay();
 
     offset = 0;
+    speed = 0;
+    automatic = 6;
+    sendLiteralBytes("start\n");
     while(1) {
         LED_RED = BUTTON;
         
@@ -216,10 +347,17 @@ void slaveMain() {
         }
 
         if (automatic) {
-            if (BUTTON == BUTTON_DOWN) {
-                while(BUTTON == BUTTON_DOWN);
+            button = detectButton();
+            if (button == 1) {
                 automatic++;
-                if (automatic > 3) automatic = 1;
+                if (automatic > 6) automatic = 1;
+                confirmFlash();
+                delay();
+            } else if (button == 2) {
+                speed++;
+                if (speed >= 3) speed = 0;
+                colorFlash(0,0,100);
+                delay();
             }
 
             offset++;
@@ -227,25 +365,37 @@ void slaveMain() {
 
             switch(automatic) {
                 case 1:
-                    writeSource(&rainbow,offset);
+                    i = offset;
+                    i = i*3;
+
+                    clearStrip(rainbow[i],rainbow[i+1],rainbow[i+2]);
                 break;
                 
                 case 2:
-                    for (i=0; i<375; i++) {
-                        led_buffer[i] = 10;
-                    }
-                    //writeSource(&other,offset);
+                    clearStrip(10,10,10);
                 break;
 
                 case 3:
-                    for (i=0; i<375; i++) {
-                        led_buffer[i] = offset;
-                    }
-                    //writeSource(&other,offset);
+                    clearStrip(255,255,255);
+                break;
+
+                case 4:
+                    i = offset - 63;
+                    if (i < 0) i *= -1;
+                    i *= 4;
+                    clearStrip(i,i,i);
+                break;
+
+                case 5:
+                    writeSource(&rainbow,offset);
+                break;
+
+                case 6:
+                    doFire(offset,125);
                 break;
             }
             updateLEDs();
-            Delay10KTCYx(50);
+            Delay10KTCYx(25*(speed+1));
         }
     }
 }

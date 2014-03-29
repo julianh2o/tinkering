@@ -22,7 +22,7 @@ def hsv2rgb(h, s, v):
     elif hi == 4: r, g, b = t, p, v
     elif hi == 5: r, g, b = v, p, q
     r, g, b = int(r * 255), int(g * 255), int(b * 255)
-    return g/16, r/16, b/16
+    return g, r, b
 
 strip_length = 125
 numbers = []
